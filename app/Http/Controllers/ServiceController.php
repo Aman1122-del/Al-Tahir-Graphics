@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Service;
+use App\Models\ServiceSample;
 use Illuminate\Http\Request;
 
 class ServiceController extends Controller
@@ -18,12 +19,56 @@ class ServiceController extends Controller
     }
 
     /**
-     * Display the specified service.
+     * Display the specified service with sub-categories.
      */
     public function show(Service $service)
     {
-        $service->load(['samples' => function($q){ $q->where('is_active', true)->orderBy('sort_order')->limit(10); }]);
-        return view('pages.service-detail', compact('service'));
+        // Get sub-categories instead of individual samples
+        $subCategories = $service->samples()
+            ->where('is_active', true)
+            ->whereNotNull('sub_category')
+            ->select('sub_category')
+            ->groupBy('sub_category')
+            ->orderBy('sub_category')
+            ->get()
+            ->pluck('sub_category');
+
+        return view('pages.service-detail', compact('service', 'subCategories'));
+    }
+
+    /**
+     * Display samples from a specific sub-category.
+     */
+    public function showCategory(Service $service, $category)
+    {
+        $samples = $service->samples()
+            ->where('is_active', true)
+            ->where('sub_category', $category)
+            ->orderBy('sort_order')
+            ->get();
+
+        if ($samples->isEmpty()) {
+            abort(404);
+        }
+
+        return view('pages.service-category', compact('service', 'category', 'samples'));
+    }
+
+    /**
+     * Display a specific sample detail.
+     */
+    public function showSample(Service $service, ServiceSample $sample)
+    {
+        // Ensure the sample belongs to this service
+        if ($sample->service_id !== $service->id) {
+            abort(404);
+        }
+
+        if (!$sample->is_active) {
+            abort(404);
+        }
+
+        return view('pages.service-sample', compact('service', 'sample'));
     }
 
     /**

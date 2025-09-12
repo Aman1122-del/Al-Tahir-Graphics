@@ -13,10 +13,44 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $services = Service::orderByDesc('id')->paginate(20);
-        return view('admin.services.index', compact('services'));
+        $query = Service::with('samples');
+
+        // Search functionality
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhere('slug', 'like', "%{$search}%");
+            });
+        }
+
+        // Category filter
+        if ($request->filled('category')) {
+            $query->where('category', $request->category);
+        }
+
+        // Status filter
+        if ($request->filled('status')) {
+            $isActive = $request->status === 'active';
+            $query->where('is_active', $isActive);
+        }
+
+        $services = $query->orderBy('sort_order')
+                         ->orderByDesc('id')
+                         ->paginate(20)
+                         ->appends($request->query());
+
+        // Get categories for filter dropdown
+        $categories = Service::whereNotNull('category')
+                            ->where('category', '!=', '')
+                            ->distinct()
+                            ->pluck('category')
+                            ->sort();
+
+        return view('admin.services.index', compact('services', 'categories'));
     }
 
     public function create()
@@ -31,6 +65,15 @@ class ProductController extends Controller
 
         if ($request->hasFile('image')) {
             $data['image_path'] = $request->file('image')->store('products', 'public');
+        }
+
+        // Handle gallery images
+        if ($request->hasFile('gallery_images')) {
+            $galleryPaths = [];
+            foreach ($request->file('gallery_images') as $file) {
+                $galleryPaths[] = $file->store('products/gallery', 'public');
+            }
+            $data['gallery_images'] = $galleryPaths;
         }
 
         $service = Service::create($data);
@@ -58,6 +101,22 @@ class ProductController extends Controller
             $data['image_path'] = $request->file('image')->store('products', 'public');
         }
 
+        // Handle gallery images
+        if ($request->hasFile('gallery_images')) {
+            // Delete old gallery images
+            if ($service->gallery_images) {
+                foreach ($service->gallery_images as $imagePath) {
+                    Storage::disk('public')->delete($imagePath);
+                }
+            }
+            
+            $galleryPaths = [];
+            foreach ($request->file('gallery_images') as $file) {
+                $galleryPaths[] = $file->store('products/gallery', 'public');
+            }
+            $data['gallery_images'] = $galleryPaths;
+        }
+
         $service->update($data);
 
         $this->syncSamples($service, $request->input('samples', []), $request);
@@ -76,12 +135,16 @@ class ProductController extends Controller
 
     private function syncSamples(Service $service, array $samples, Request $request): void
     {
-        // Expect up to 10 items: each with id(optional), title, price(optional), is_active, sort_order, image(optional)
+        // Expect up to 10 items: each with id(optional), title, unit_price(optional), price_display, sample_type, etc.
         $existingIds = [];
         foreach (array_slice($samples, 0, 10) as $index => $sampleData) {
             $payload = [
                 'title' => $sampleData['title'] ?? ('Sample ' . ($index+1)),
-                'price' => $sampleData['price'] ?? null,
+                'unit_price' => $sampleData['unit_price'] ?? null,
+                'price_display' => $sampleData['price_display'] ?? null,
+                'sample_type' => $sampleData['sample_type'] ?? 'standard',
+                'sub_category' => $sampleData['sub_category'] ?? null,
+                'description' => $sampleData['description'] ?? null,
                 'is_active' => isset($sampleData['is_active']) ? (bool)$sampleData['is_active'] : true,
                 'sort_order' => $sampleData['sort_order'] ?? $index,
             ];

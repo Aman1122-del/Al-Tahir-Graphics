@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Service;
+use Illuminate\Support\Str;
 
 class ServiceSeeder extends Seeder
 {
@@ -82,7 +83,18 @@ class ServiceSeeder extends Seeder
             ],
         ];
 
+        $usedSlugs = [];
         foreach ($services as $service) {
+            $base = Str::slug($service['title']);
+            $slug = $base;
+            $suffix = 2;
+            while (in_array($slug, $usedSlugs, true) || Service::where('slug', $slug)->exists()) {
+                $slug = $base . '-' . $suffix;
+                $suffix++;
+            }
+            $usedSlugs[] = $slug;
+            $service['slug'] = $slug;
+
             Service::updateOrCreate(
                 ['title' => $service['title']],
                 $service

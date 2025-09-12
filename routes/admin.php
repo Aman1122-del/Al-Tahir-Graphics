@@ -39,6 +39,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Services CRUD
     Route::resource('services', ProductController::class);
+    
+    // Service Samples CRUD
+    Route::resource('services.samples', \App\Http\Controllers\Admin\ServiceSampleController::class)->except(['show']);
+    Route::resource('samples', \App\Http\Controllers\Admin\ServiceSampleController::class)->only(['index', 'edit', 'update', 'destroy']);
 
     // Services quick actions
     Route::post('services/{service}/toggle', [AdminServiceController::class, 'toggle'])->name('services.toggle');

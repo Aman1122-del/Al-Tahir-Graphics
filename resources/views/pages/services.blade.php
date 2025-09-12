@@ -25,7 +25,7 @@
                             <p class="mt-2 text-sm text-slate-600">{{ Str::limit($service->description, 80) }}</p>
                         @endif
                         <div class="mt-4 flex items-center justify-between">
-                            <a href="{{ route('service.show', $service) }}" class="text-sm font-medium text-[--color-brand-blue] hover:text-[--color-brand-orange]">Details</a>
+                            <a href="{{ route('service.show', $service->slug) }}" class="text-sm font-medium text-[--color-brand-blue] hover:text-[--color-brand-orange]">Details</a>
                         </div>
                     </div>
                 </div>

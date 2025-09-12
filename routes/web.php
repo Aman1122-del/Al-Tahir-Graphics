@@ -4,7 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DesignController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -14,6 +14,8 @@ Route::get('/', function () {
 
 Route::get('/services', [ServiceController::class, 'index'])->name('services');
 Route::get('/services/{service}', [ServiceController::class, 'show'])->name('service.show');
+Route::get('/services/{service}/categories/{category}', [ServiceController::class, 'showCategory'])->name('service.category');
+Route::get('/services/{service}/samples/{sample}', [ServiceController::class, 'showSample'])->name('service.sample');
 
 // Cart sync endpoint for merging localStorage -> server (optional explicit route)
 Route::post('/cart/sync', function(\Illuminate\Http\Request $request) {
@@ -77,7 +79,6 @@ require __DIR__.'/admin.php';
 require __DIR__.'/chat.php';
 
 // Design API routes
-use App\Http\Controllers\DesignController;
 Route::prefix('api/design')->group(function () {
     Route::post('/save', [DesignController::class, 'save'])->name('design.save');
     Route::get('/load/{design}', [DesignController::class, 'load'])->name('design.load');

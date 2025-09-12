@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Service extends Model
 {
@@ -16,10 +17,14 @@ class Service extends Model
         'price_display', // Keep the display price for backward compatibility
         'image_url',
         'image_path',
+        'gallery_images',
         'category',
         'is_featured',
         'is_active',
         'sort_order',
+        'meta_title',
+        'meta_description',
+        'meta_keywords',
     ];
 
     protected $casts = [
@@ -27,6 +32,7 @@ class Service extends Model
         'is_featured' => 'boolean',
         'is_active' => 'boolean',
         'sort_order' => 'integer',
+        'gallery_images' => 'array',
     ];
 
     /**
@@ -99,11 +105,66 @@ class Service extends Model
 
     public function samples(): HasMany
     {
-        return $this->hasMany(ServiceSample::class)->orderBy('sort_order')->limit(10);
+        return $this->hasMany(ServiceSample::class)->orderBy('sort_order');
+    }
+
+    /**
+     * Get samples grouped by sub-category
+     */
+    public function samplesBySubCategory()
+    {
+        return $this->samples()
+            ->where('is_active', true)
+            ->get()
+            ->groupBy('sub_category');
+    }
+
+    /**
+     * Get unique sub-categories for this service
+     */
+    public function getSubCategoriesAttribute()
+    {
+        return $this->samples()
+            ->where('is_active', true)
+            ->whereNotNull('sub_category')
+            ->pluck('sub_category')
+            ->unique()
+            ->values();
     }
 
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (Service $service) {
+            if (empty($service->slug)) {
+                $service->slug = static::generateUniqueSlug($service->title);
+            }
+        });
+
+        static::updating(function (Service $service) {
+            // If slug is empty or title changed while slug was previously empty, regenerate
+            if (empty($service->slug)) {
+                $service->slug = static::generateUniqueSlug($service->title, $service->id);
+            }
+        });
+    }
+
+    private static function generateUniqueSlug(string $title, ?int $ignoreId = null): string
+    {
+        $base = Str::slug($title) ?: 'service';
+        $slug = $base;
+        $suffix = 2;
+        while (static::query()
+            ->when($ignoreId, fn($q) => $q->where('id', '!=', $ignoreId))
+            ->where('slug', $slug)
+            ->exists()) {
+            $slug = $base . '-' . $suffix;
+            $suffix++;
+        }
+        return $slug;
     }
 }

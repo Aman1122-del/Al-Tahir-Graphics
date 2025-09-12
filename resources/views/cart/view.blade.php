@@ -14,10 +14,20 @@
                     @foreach($cartItems as $item)
                         <div class="bg-white rounded-2xl shadow-md ring-1 ring-black/5 p-6" data-cart-item-id="{{ $item->id }}">
                             <div class="flex gap-4">
-                                <img src="{{ $item->design_preview_path ? asset('storage/' . $item->design_preview_path) : $item->service->image_url }}" alt="{{ $item->service->title }}" class="w-20 h-20 rounded-lg object-cover flex-shrink-0">
+                                <img src="{{ $item->design_preview_path ? asset('storage/' . $item->design_preview_path) : ($item->sample ? $item->sample->image_path : $item->service->image_path) }}" alt="{{ $item->sample ? $item->sample->title : $item->service->title }}" class="w-20 h-20 rounded-lg object-cover flex-shrink-0">
                                 <div class="flex-1 min-w-0">
-                                    <h3 class="text-lg font-semibold text-[--color-brand-deepblue]">{{ $item->service->title }}</h3>
-                                    <p class="text-sm text-slate-600 mt-1">{{ $item->service->formatted_price }} each</p>
+                                    <h3 class="text-lg font-semibold text-[--color-brand-deepblue]">
+                                        @if($item->sample)
+                                            {{ $item->sample->title }}
+                                            <span class="text-sm font-normal text-slate-600">- {{ $item->service->title }}</span>
+                                        @else
+                                            {{ $item->service->title }}
+                                        @endif
+                                    </h3>
+                                    @if($item->sample && $item->sample->sub_category)
+                                        <p class="text-sm text-slate-500">{{ $item->sample->sub_category }} Category</p>
+                                    @endif
+                                    <p class="text-sm text-slate-600 mt-1">{{ $item->sample ? $item->sample->formatted_price : $item->service->formatted_price }} each</p>
                                     @if($item->design_id)
                                         <div class="mt-2 text-xs text-slate-600">
                                             Design attached — <a class="text-[--color-brand-blue] underline" href="{{ url('/design?design_id=' . $item->design_id) }}">Edit design</a>
