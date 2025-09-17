@@ -1,0 +1,186 @@
+/* Product Category and Detail Styles */
+
+/* Mobile-first responsive design */
+@media (max-width: 640px) {
+    .subcategory-tab {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .product-tile {
+        margin-bottom: 1rem;
+    }
+    
+    .product-tile .h-48 {
+        height: 12rem;
+    }
+    
+    .variant-btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+    }
+    
+    .quick-view-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .add-to-cart-btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* Accessibility improvements */
+.product-tile:focus-within {
+    outline: 2px solid var(--color-brand-blue);
+    outline-offset: 2px;
+}
+
+.quick-view-btn:focus,
+.add-to-cart-btn:focus,
+.variant-btn:focus {
+    outline: 2px solid var(--color-brand-blue);
+    outline-offset: 2px;
+}
+
+/* Smooth transitions for better UX */
+.product-tile {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-tile:hover {
+    transform: translateY(-0.5rem);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Loading states */
+.product-tile.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.add-to-cart-btn.loading {
+    position: relative;
+    color: transparent;
+}
+
+.add-to-cart-btn.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Modal improvements */
+#productGalleryModal {
+    z-index: 9999;
+}
+
+#productGalleryModal .modal-content {
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+/* Subcategory section transitions */
+.subcategory-section {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.subcategory-section:not(.active) {
+    display: none;
+}
+
+/* Price calculation animations */
+#totalPrice,
+#cartTotalPrice {
+    transition: color 0.2s ease;
+}
+
+.price-updated {
+    color: var(--color-brand-orange);
+    animation: priceUpdate 0.5s ease;
+}
+
+@keyframes priceUpdate {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Line clamp utilities */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Touch-friendly buttons on mobile */
+@media (max-width: 768px) {
+    .quick-view-btn,
+    .add-to-cart-btn,
+    .variant-btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .product-tile {
+        border: 2px solid;
+    }
+    
+    .variant-btn.active {
+        border-width: 3px;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .product-tile,
+    .quick-view-btn,
+    .add-to-cart-btn,
+    .variant-btn {
+        transition: none;
+    }
+    
+    .product-tile:hover {
+        transform: none;
+    }
+}
+
+/* Print styles */
+@media print {
+    .quick-view-btn,
+    .add-to-cart-btn,
+    .subcategory-tab {
+        display: none;
+    }
+    
+    .product-tile {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+}
