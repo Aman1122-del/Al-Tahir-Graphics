@@ -2,37 +2,46 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Message;
+use App\Models\UnifiedChat;
+use App\Models\UnifiedChatMessage;
+use App\Models\ChatParticipant;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Pusher\Pusher;
 
 class ChatController extends Controller
 {
-    protected $pusher;
-
     public function __construct()
     {
-        $this->pusher = new Pusher(
-            config('broadcasting.connections.pusher.key'),
-            config('broadcasting.connections.pusher.secret'),
-            config('broadcasting.connections.pusher.app_id'),
-            config('broadcasting.connections.pusher.options')
-        );
+        // No external dependencies - using database polling instead
     }
 
     /**
      * Show the chat interface.
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
-        $chatUsers = $user->getChatUsers();
         
-        return view('chat.index', compact('chatUsers'));
+        // Get user's active chats (most recent first)
+        $chats = UnifiedChat::forUser($user->id)
+            ->with(['latestMessage', 'participants'])
+            ->where('status', 'active') 
+            ->orderBy('last_message_at', 'desc')
+            ->get();
+        
+        // Return JSON if AJAX request
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'chats' => $chats,
+            ]);
+        }
+        
+        // For the new floating widget chat page, we don't need the chatUsers
+        return view('chat.index');
     }
 
     /**
@@ -41,7 +50,7 @@ class ChatController extends Controller
     public function sendMessage(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'receiver_id' => 'required|exists:users,id',
+            'chat_id' => 'required|exists:unified_chats,id',
             'message' => 'required|string|max:1000',
             'file' => 'nullable|file|max:10240', // 10MB max
         ]);
@@ -51,17 +60,18 @@ class ChatController extends Controller
         }
 
         $user = Auth::user();
-        $receiverId = $request->receiver_id;
+        $chat = UnifiedChat::findOrFail($request->chat_id);
 
-        // Check if user can send message to receiver
-        if (!$this->canSendMessage($user, $receiverId)) {
-            return response()->json(['error' => 'Unauthorized to send message to this user'], 403);
+        // Check if user can send message to this chat
+        if (!$chat->hasParticipant($user->id)) {
+            return response()->json(['error' => 'Unauthorized to send message to this chat'], 403);
         }
 
         $messageData = [
+            'unified_chat_id' => $chat->id,
             'sender_id' => $user->id,
-            'receiver_id' => $receiverId,
             'message' => $request->message,
+            'message_type' => 'text',
         ];
 
         // Handle file upload
@@ -73,17 +83,20 @@ class ChatController extends Controller
             $messageData['file_path'] = $filePath;
             $messageData['file_name'] = $file->getClientOriginalName();
             $messageData['file_type'] = $file->getMimeType();
+            $messageData['file_size'] = $file->getSize();
+            $messageData['message_type'] = 'file';
         }
 
-        $message = Message::create($messageData);
+        $message = UnifiedChatMessage::create($messageData);
         $message->load('sender');
 
-        // Broadcast to Pusher
-        $this->pusher->trigger('chat-channel', 'new-message', [
-            'message' => $message,
-            'sender' => $message->sender->name,
-            'receiver_id' => $receiverId,
-        ]);
+        // Add file URL if file exists
+        if ($message->file_path) {
+            $message->file_url = asset('storage/' . $message->file_path);
+        }
+
+        // Update chat's last message time
+        $chat->update(['last_message_at' => now()]);
 
         return response()->json([
             'success' => true,
@@ -92,36 +105,41 @@ class ChatController extends Controller
     }
 
     /**
-     * Fetch messages between two users.
+     * Fetch messages for a chat.
      */
-    public function fetchMessages(Request $request)
+    public function fetchMessages(Request $request, $chatId)
     {
-        $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exists:users,id',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
         $user = Auth::user();
-        $otherUserId = $request->user_id;
+        $chat = UnifiedChat::findOrFail($chatId);
+        $since = $request->query('since', 0);
 
-        // Check if user can access messages with this user
-        if (!$this->canAccessMessages($user, $otherUserId)) {
-            return response()->json(['error' => 'Unauthorized to access these messages'], 403);
+        // Check if user can access this chat
+        if (!$chat->hasParticipant($user->id)) {
+            return response()->json(['error' => 'Unauthorized to access this chat'], 403);
         }
 
-        $messages = Message::betweenUsers($user->id, $otherUserId)
-            ->with(['sender:id,name', 'receiver:id,name'])
-            ->orderBy('created_at', 'asc')
-            ->get();
+        $messagesQuery = $chat->messages()
+            ->with('sender')
+            ->orderBy('created_at', 'asc');
 
-        // Mark messages as read
-        Message::where('sender_id', $otherUserId)
-            ->where('receiver_id', $user->id)
-            ->whereNull('read_at')
-            ->update(['read_at' => now()]);
+        // If polling for new messages, only get messages since the last ID
+        if ($since > 0) {
+            $messagesQuery->where('id', '>', $since);
+        }
+
+        $messages = $messagesQuery->get();
+
+        // Add file URLs to messages
+        $messages->each(function ($message) {
+            if ($message->file_path) {
+                $message->file_url = asset('storage/' . $message->file_path);
+            }
+        });
+
+        // Mark messages as read for this user (only if fetching all messages)
+        if ($since === 0) {
+            $chat->markAsReadForUser($user->id);
+        }
 
         return response()->json([
             'success' => true,
@@ -135,7 +153,7 @@ class ChatController extends Controller
     public function markAsRead(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'sender_id' => 'required|exists:users,id',
+            'chat_id' => 'required|exists:unified_chats,id',
         ]);
 
         if ($validator->fails()) {
@@ -143,21 +161,19 @@ class ChatController extends Controller
         }
 
         $user = Auth::user();
-        $senderId = $request->sender_id;
+        $chat = UnifiedChat::findOrFail($request->chat_id);
 
-        // Check if user can mark messages as read
-        if (!$this->canAccessMessages($user, $senderId)) {
-            return response()->json(['error' => 'Unauthorized to access these messages'], 403);
+        // Check if user can access this chat
+        if (!$chat->hasParticipant($user->id)) {
+            return response()->json(['error' => 'Unauthorized to access this chat'], 403);
         }
 
-        $updated = Message::where('sender_id', $senderId)
-            ->where('receiver_id', $user->id)
-            ->whereNull('read_at')
-            ->update(['read_at' => now()]);
+        // Mark messages as read for this user
+        $chat->markAsReadForUser($user->id);
 
         return response()->json([
             'success' => true,
-            'updated_count' => $updated,
+            'message' => 'Messages marked as read',
         ]);
     }
 
@@ -167,7 +183,15 @@ class ChatController extends Controller
     public function getUnreadCount()
     {
         $user = Auth::user();
-        $count = $user->getUnreadMessageCount();
+        
+        // Get unread count from all user's chats
+        $count = UnifiedChat::forUser($user->id)
+            ->withCount(['messages as unread_count' => function ($query) use ($user) {
+                $query->where('sender_id', '!=', $user->id)
+                      ->where('is_read', false);
+            }])
+            ->get()
+            ->sum('unread_count');
 
         return response()->json([
             'success' => true,
@@ -181,47 +205,83 @@ class ChatController extends Controller
     public function getChatUsers()
     {
         $user = Auth::user();
-        $chatUsers = $user->getChatUsers();
+        
+        // Get all users that have admin/support roles
+        $adminUsers = User::where('is_admin', true)->get();
 
         return response()->json([
             'success' => true,
-            'users' => $chatUsers,
+            'users' => $adminUsers,
         ]);
     }
 
     /**
-     * Check if user can send message to receiver.
+     * Start a new chat with support.
      */
-    private function canSendMessage($user, $receiverId)
+    public function startChat(Request $request)
     {
-        if ($user->id == $receiverId) {
-            return false; // Can't send message to self
+        $validator = Validator::make($request->all(), [
+            'message' => 'required|string|max:1000',
+            'topic' => 'nullable|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        if ($user->hasRole(['admin', 'support'])) {
-            return true; // Admin/support can message anyone
+        $user = Auth::user();
+        
+        // Check if user already has an active chat (get the most recent one)
+        $existingChat = UnifiedChat::forUser($user->id)
+            ->where('status', 'active')
+            ->orderBy('last_message_at', 'desc')
+            ->first();
+
+        if ($existingChat) {
+            return response()->json([
+                'success' => true,
+                'chat_id' => $existingChat->id,
+                'message' => 'Using existing chat',
+            ]);
         }
 
-        // Regular users can only message admin/support
-        $receiver = User::find($receiverId);
-        return $receiver && $receiver->hasRole(['admin', 'support']);
-    }
+        // Create new chat
+        $chat = UnifiedChat::create([
+            'type' => 'support',
+            'title' => 'Support Request from ' . $user->name,
+            'status' => 'active',
+            'priority' => 'normal',
+            'created_by' => $user->id,
+            'metadata' => [
+                'topic' => $request->topic,
+            ],
+        ]);
 
-    /**
-     * Check if user can access messages with another user.
-     */
-    private function canAccessMessages($user, $otherUserId)
-    {
-        if ($user->id == $otherUserId) {
-            return false; // Can't access messages with self
+        // Add user as participant
+        $chat->addParticipant($user->id, null, null, 'participant');
+
+        // Add admin as participant (find first admin)
+        $admin = User::where('is_admin', true)->first();
+        if ($admin) {
+            $chat->addParticipant($admin->id, null, null, 'admin');
+            $chat->update(['assigned_to' => $admin->id]);
         }
 
-        if ($user->hasRole(['admin', 'support'])) {
-            return true; // Admin/support can access all messages
-        }
+        // Create initial message
+        $message = UnifiedChatMessage::create([
+            'unified_chat_id' => $chat->id,
+            'sender_id' => $user->id,
+            'message' => $request->message,
+            'message_type' => 'text',
+        ]);
 
-        // Regular users can only access messages with admin/support
-        $otherUser = User::find($otherUserId);
-        return $otherUser && $otherUser->hasRole(['admin', 'support']);
+        // Update chat's last message time
+        $chat->update(['last_message_at' => now()]);
+
+        return response()->json([
+            'success' => true,
+            'chat_id' => $chat->id,
+            'message' => 'Chat started successfully',
+        ]);
     }
 }

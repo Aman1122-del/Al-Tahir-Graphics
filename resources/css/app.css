@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Alpine.js x-cloak directive styles */
+[x-cloak] {
+    display: none !important;
+}
+
 /* Custom CSS Variables */
 :root {
     --color-brand-blue: #3b82f6;
@@ -72,6 +77,137 @@
     .group:hover .image-overlay {
         opacity: 1;
     }
+
+    /* Enhanced Services Page Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(50px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @keyframes scaleIn {
+        from {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @keyframes ripple {
+        0% {
+            transform: scale(0);
+            opacity: 1;
+        }
+        100% {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+
+    /* Animation classes */
+    .animate-fade-in-up {
+        animation: fadeInUp 0.8s ease-out forwards;
+    }
+
+    .animate-slide-in-up {
+        opacity: 0;
+        transform: translateY(50px) scale(0.95);
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .animate-slide-in-up.animate-visible {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    .animate-scale-in {
+        opacity: 0;
+        transform: scale(0.8);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .animate-scale-in.animate-visible {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    /* Line clamp utilities for text truncation */
+    .line-clamp-1 {
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .line-clamp-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* Enhanced button hover effects */
+    .btn-enhanced {
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-enhanced::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+    }
+
+    .btn-enhanced:hover::before {
+        width: 300px;
+        height: 300px;
+    }
+
+    /* Backdrop blur utility for better browser support */
+    .backdrop-blur-fallback {
+        background-color: rgba(255, 255, 255, 0.9);
+    }
+
+    @supports (backdrop-filter: blur(10px)) {
+        .backdrop-blur-fallback {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+        }
+    }
     
     /* Reduced motion support */
     @media (prefers-reduced-motion: reduce) {
@@ -81,6 +217,14 @@
             transition-duration: 0.01ms !important;
             scroll-behavior: auto !important;
         }
+        
+        .animate-fade-in-up,
+        .animate-slide-in-up,
+        .animate-scale-in {
+            animation: none !important;
+            opacity: 1 !important;
+            transform: none !important;
+        }
     }
     
     /* High contrast mode support */
@@ -89,10 +233,95 @@
         .btn-secondary {
             @apply border-2 border-current;
         }
+        
+        /* Enhanced contrast for cards */
+        .bg-white {
+            @apply border-2 border-gray-400;
+        }
     }
     
     /* Focus indicators for better accessibility */
     .focus-visible:focus {
         @apply outline-2 outline-blue-500 outline-offset-2;
+    }
+
+    /* Filtering animations */
+    .product-card {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .product-card.hidden {
+        opacity: 0;
+        transform: scale(0.8);
+        pointer-events: none;
+    }
+
+    .product-card:not(.hidden) {
+        opacity: 1;
+        transform: scale(1);
+        pointer-events: auto;
+    }
+
+    /* Toast notification styles */
+    .toast-notification {
+        backdrop-filter: blur(10px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    /* Cart button loading state */
+    .cart-button-loading {
+        position: relative;
+        color: transparent !important;
+    }
+
+    .cart-button-loading::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 16px;
+        height: 16px;
+        margin: -8px 0 0 -8px;
+        border: 2px solid transparent;
+        border-top: 2px solid currentColor;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    /* Enhanced grid responsive behavior */
+    @media (max-width: 640px) {
+        .product-card {
+            margin-bottom: 0.5rem;
+        }
+        
+        .product-card .absolute.inset-0 {
+            padding: 0.5rem;
+        }
+        
+        .product-card button {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.75rem;
+        }
+    }
+
+    /* Print optimizations */
+    @media print {
+        .animate-fade-in-up,
+        .animate-slide-in-up,
+        .animate-scale-in {
+            animation: none !important;
+            opacity: 1 !important;
+            transform: none !important;
+        }
+        
+        .hover\:scale-105:hover,
+        .hover\:-translate-y-2:hover {
+            transform: none !important;
+        }
+        
+        .product-card button,
+        .toast-notification {
+            display: none !important;
+        }
     }
 }

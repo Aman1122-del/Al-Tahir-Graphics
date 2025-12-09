@@ -141,11 +141,13 @@
         });
 
         function updateCartItem(cartItemId, quantity, customRequirements) {
-            fetch(`{{ url('/cart/update') }}/${cartItemId}`, {
+            const updateUrl = `{{ route('cart.update', ['cartItem' => '__ID__']) }}`.replace('__ID__', cartItemId);
+            fetch(updateUrl, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest',
                     'Accept': 'application/json',
                 },
                 body: JSON.stringify({
@@ -156,9 +158,13 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Update cart summary in navbar
-                    document.getElementById('cartCount').textContent = data.item_count;
-                    document.getElementById('cartTotal').textContent = data.cart_total;
+                    // Update cart summary in navbar (if present)
+                    if (window.CartManager) {
+                        window.CartManager.updateCartCount(data.item_count);
+                    } else {
+                        const badge = document.querySelector('.cart-count');
+                        if (badge) badge.textContent = data.item_count;
+                    }
                     
                     // Update item total
                     const cartItem = document.querySelector(`[data-cart-item-id="${cartItemId}"]`);
@@ -186,19 +192,25 @@
                 return;
             }
 
-            fetch(`{{ url('/cart/remove') }}/${cartItemId}`, {
+            const removeUrl = `{{ route('cart.remove', ['cartItem' => '__ID__']) }}`.replace('__ID__', cartItemId);
+            fetch(removeUrl, {
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest',
                     'Accept': 'application/json',
                 }
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Update cart summary in navbar
-                    document.getElementById('cartCount').textContent = data.item_count;
-                    document.getElementById('cartTotal').textContent = data.cart_total;
+                    // Update cart summary in navbar (if present)
+                    if (window.CartManager) {
+                        window.CartManager.updateCartCount(data.item_count);
+                    } else {
+                        const badge = document.querySelector('.cart-count');
+                        if (badge) badge.textContent = data.item_count;
+                    }
                     
                     // Remove cart item from DOM
                     const cartItem = document.querySelector(`[data-cart-item-id="${cartItemId}"]`);

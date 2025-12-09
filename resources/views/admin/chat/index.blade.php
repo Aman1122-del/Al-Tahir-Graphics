@@ -1,231 +1,233 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="py-12">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h1 class="text-3xl font-bold text-gray-900">Chat Management</h1>
-                    <div class="flex space-x-3">
-                        <button @click="exportChats()" class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">
-                            Export Chats
+<div class="h-screen flex bg-gray-50" x-data="adminChatPanel()">
+    <!-- Side Panel for Conversations -->
+    <div class="w-80 bg-white shadow-lg flex flex-col">
+        <!-- Header -->
+        <div class="p-4 border-b border-gray-200 bg-white">
+            <div class="flex items-center justify-between mb-4">
+                <h1 class="text-xl font-bold text-gray-900">Chat Management</h1>
+                <button @click="refreshData()" class="text-gray-500 hover:text-gray-700" title="Refresh">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
                         </button>
-                        <button @click="refreshStats()" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-                            Refresh Stats
-                        </button>
                     </div>
+
+            <!-- Statistics -->
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="bg-blue-50 p-3 rounded-lg">
+                    <div class="text-xs text-blue-600 font-medium">Total Messages</div>
+                    <div class="text-lg font-bold text-blue-900" x-text="stats.total_messages || 0">0</div>
                 </div>
-
-                <!-- Statistics Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
-                        <div class="flex items-center">
-                            <div class="p-2 bg-blue-500 rounded-lg">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                                </svg>
+                <div class="bg-green-50 p-3 rounded-lg">
+                    <div class="text-xs text-green-600 font-medium">Active Users</div>
+                    <div class="text-lg font-bold text-green-900" x-text="stats.total_users_with_chats || 0">0</div>
                             </div>
-                            <div class="ml-4">
-                                <p class="text-sm font-medium text-blue-600">Total Messages</p>
-                                <p class="text-2xl font-bold text-blue-900" x-text="stats.total_messages || 0">0</p>
+                <div class="bg-yellow-50 p-3 rounded-lg">
+                    <div class="text-xs text-yellow-600 font-medium">Unread</div>
+                    <div class="text-lg font-bold text-yellow-900" x-text="stats.unread_messages || 0">0</div>
                             </div>
+                <div class="bg-purple-50 p-3 rounded-lg">
+                    <div class="text-xs text-purple-600 font-medium">Today</div>
+                    <div class="text-lg font-bold text-purple-900" x-text="stats.messages_today || 0">0</div>
                         </div>
                     </div>
 
-                    <div class="bg-green-50 p-6 rounded-lg border border-green-200">
-                        <div class="flex items-center">
-                            <div class="p-2 bg-green-500 rounded-lg">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
-                                </svg>
+            <!-- Search -->
+            <div class="mb-4">
+                <input type="text"
+                       placeholder="Search conversations..."
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       x-model="searchQuery"
+                       @input="filterConversations()">
                             </div>
-                            <div class="ml-4">
-                                <p class="text-sm font-medium text-green-600">Active Users</p>
-                                <p class="text-2xl font-bold text-green-900" x-text="stats.total_users_with_chats || 0">0</p>
+
+            <!-- Export Button -->
+            <button @click="exportChats()" class="w-full px-3 py-2 bg-green-500 text-white text-sm rounded-md hover:bg-green-600 mb-2">
+                Export Data
+            </button>
+            
+            <!-- Test Button (temporary for debugging) -->
+            <button @click="testOpenFirstConversation()" class="w-full px-3 py-2 bg-red-500 text-white text-sm rounded-md hover:bg-red-600">
+                Test Chat
+            </button>
                             </div>
-                        </div>
+
+        <!-- Conversations List -->
+        <div class="flex-1 overflow-y-auto">
+            <div x-show="filteredConversations.length === 0" class="text-center text-gray-500 py-8 px-4">
+                <p>No conversations found</p>
+                <p class="text-sm mt-1">Start chatting with users to see them here</p>
                     </div>
 
-                    <div class="bg-yellow-50 p-6 rounded-lg border border-yellow-200">
-                        <div class="flex items-center">
-                            <div class="p-2 bg-yellow-500 rounded-lg">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
+            <template x-for="conversation in filteredConversations" :key="conversation.id">
+                <div class="p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors"
+                     :class="{ 'bg-blue-50 border-blue-200': selectedConversation && selectedConversation.id === conversation.id }"
+                     @click="openConversation(conversation)">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center flex-1 min-w-0">
+                            <!-- Avatar -->
+                            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-sm mr-3 flex-shrink-0">
+                                <span x-text="conversation.user_name.charAt(0).toUpperCase()"></span>
                             </div>
-                            <div class="ml-4">
-                                <p class="text-sm font-medium text-yellow-600">Unread Messages</p>
-                                <p class="text-2xl font-bold text-yellow-900" x-text="stats.unread_messages || 0">0</p>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="bg-purple-50 p-6 rounded-lg border border-purple-200">
-                        <div class="flex items-center">
-                            <div class="p-2 bg-purple-500 rounded-lg">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                </svg>
-                            </div>
-                            <div class="ml-4">
-                                <p class="text-sm font-medium text-purple-600">Today's Messages</p>
-                                <p class="text-2xl font-bold text-purple-900" x-text="stats.messages_today || 0">0</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Search and Filters -->
-                <div class="mb-6">
-                    <div class="flex space-x-4">
-                        <div class="flex-1">
-                            <input type="text" 
-                                   placeholder="Search users..." 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                   x-model="searchQuery"
-                                   @input="searchUsers()">
-                        </div>
-                        <div class="flex space-x-2">
-                            <select x-model="statusFilter" @change="filterUsers()" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="">All Status</option>
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Chat Users Table -->
-                <div class="bg-white shadow overflow-hidden sm:rounded-md">
-                    <ul class="divide-y divide-gray-200">
-                        <template x-for="user in filteredUsers" :key="user.id">
-                            <li class="px-6 py-4 hover:bg-gray-50 cursor-pointer" @click="openChat(user)">
+                            <!-- User Info -->
+                            <div class="flex-1 min-w-0">
                                 <div class="flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <!-- Avatar -->
-                                        <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold mr-4">
-                                            <span x-text="user.name.charAt(0).toUpperCase()"></span>
+                                    <p class="text-sm font-medium text-gray-900 truncate" x-text="conversation.user_name"></p>
+                                    <div class="flex items-center space-x-1">
+                                        <!-- Unread Badge -->
+                                        <div x-show="conversation.unread_count > 0"
+                                             class="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                            <span x-text="conversation.unread_count"></span>
                                         </div>
-                                        
-                                        <!-- User Info -->
-                                        <div>
-                                            <p class="text-sm font-medium text-gray-900" x-text="user.name"></p>
-                                            <p class="text-sm text-gray-500" x-text="user.email"></p>
+                                        <!-- Online Status -->
+                                        <div class="w-2 h-2 rounded-full"
+                                             :class="conversation.is_online ? 'bg-green-500' : 'bg-gray-400'">
+                            </div>
+                        </div>
+                    </div>
+                                <p class="text-xs text-gray-500 truncate" x-text="conversation.user_email"></p>
+                                <div class="flex items-center justify-between mt-1">
+                                    <p class="text-xs text-gray-600 truncate" x-text="conversation.last_message || 'No messages yet'"></p>
+                                    <span class="text-xs text-gray-400" x-text="formatTime(conversation.last_message_at)"></span>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+                        </div>
+                    </div>
+
+    <!-- Main Chat Area -->
+    <div class="flex-1 flex flex-col" x-show="selectedConversation">
+        <!-- Chat Header -->
+        <div class="bg-white border-b border-gray-200 p-4 flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold mr-3">
+                    <span x-text="selectedConversation.user_name.charAt(0).toUpperCase()"></span>
+                </div>
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900" x-text="selectedConversation.user_name"></h2>
+                    <p class="text-sm text-gray-500" x-text="selectedConversation.user_email"></p>
+                </div>
+                                        </div>
+            <div class="flex items-center space-x-2">
+                <span class="px-2 py-1 text-xs rounded-full"
+                      :class="selectedConversation.is_online ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'">
+                    <span x-text="selectedConversation.is_online ? 'Online' : 'Offline'"></span>
+                </span>
+                <button @click="closeConversation()" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
                                         </div>
                                     </div>
                                     
-                                    <!-- Chat Stats -->
-                                    <div class="flex items-center space-x-4">
-                                        <div class="text-right">
-                                            <p class="text-sm text-gray-900" x-text="user.sent_messages_count + ' sent'"></p>
-                                            <p class="text-sm text-gray-500" x-text="user.received_messages_count + ' received'"></p>
+        <!-- Messages Area -->
+        <div class="flex-1 overflow-y-auto p-4 bg-gray-50" id="chat-messages-area">
+            <div x-show="loading" class="text-center text-gray-500 py-8">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+                <p class="mt-2">Loading messages...</p>
                                         </div>
                                         
-                                        <!-- Unread Badge -->
-                                        <div x-show="user.unread_count > 0" 
-                                             class="bg-red-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center">
-                                            <span x-text="user.unread_count"></span>
+            <div x-show="!loading && messages.length === 0" class="text-center text-gray-500 py-8">
+                <p>No messages yet. Start the conversation!</p>
                                         </div>
                                         
-                                        <!-- Status Indicator -->
-                                        <div class="w-3 h-3 rounded-full" 
+            <template x-for="message in messages" :key="message.id">
+                <div class="mb-4" :class="{ 'text-right': message.sender_id === currentUserId }">
+                    <div class="inline-block max-w-xs lg:max-w-md px-4 py-2 rounded-lg"
                                              :class="{ 
-                                                 'bg-green-500': user.last_activity && new Date(user.last_activity) > new Date(Date.now() - 5 * 60 * 1000),
-                                                 'bg-gray-400': !user.last_activity || new Date(user.last_activity) <= new Date(Date.now() - 5 * 60 * 1000)
-                                             }"></div>
+                             'bg-blue-500 text-white': message.sender_id === currentUserId,
+                             'bg-white text-gray-900 border border-gray-200': message.sender_id !== currentUserId
+                         }">
+                        <div class="text-xs opacity-75 mb-1"
+                             x-text="message.sender_id === currentUserId ? 'You' : (message.sender ? message.sender.name : selectedConversation.user_name)">
                                     </div>
+                        <div class="text-sm" x-text="message.message"></div>
+                        <div class="text-xs opacity-75 mt-1"
+                             x-text="formatTime(message.created_at)">
                                 </div>
-                            </li>
-                        </template>
-                    </ul>
-                    
-                    <div x-show="filteredUsers.length === 0" class="text-center text-gray-500 py-8">
-                        No users found
                     </div>
-                </div>
-
-                <!-- Recent Conversations -->
-                <div class="mt-8">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Recent Conversations</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <template x-for="(conversation, userId) in recentConversations" :key="userId">
-                            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 hover:bg-gray-100 cursor-pointer" @click="openChat({id: userId})">
-                                <div class="flex items-center justify-between mb-2">
-                                    <span class="text-sm font-medium text-gray-900" x-text="getUserName(userId)"></span>
-                                    <span class="text-xs text-gray-500" x-text="formatTime(conversation[0].created_at)"></span>
-                                </div>
-                                <p class="text-sm text-gray-600 truncate" x-text="conversation[0].message"></p>
                             </div>
                         </template>
                     </div>
+
+        <!-- Message Input -->
+        <div class="bg-white border-t border-gray-200 p-4" x-show="selectedConversation">
+            <form @submit.prevent="sendMessage()" class="flex space-x-3">
+                <div class="flex-1">
+                    <input type="text"
+                           x-model="newMessage"
+                           placeholder="Type your message..."
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           :disabled="sending">
                 </div>
+                <button type="submit"
+                        :disabled="!newMessage.trim() || sending"
+                        class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50">
+                    <span x-show="!sending">Send</span>
+                    <span x-show="sending">...</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- No Conversation Selected -->
+    <div class="flex-1 flex items-center justify-center bg-gray-50" x-show="!selectedConversation">
+        <div class="text-center">
+            <div class="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                </svg>
             </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Select a conversation</h3>
+            <p class="text-gray-500">Choose a conversation from the sidebar to start chatting</p>
         </div>
     </div>
 </div>
 
-<!-- Export Modal -->
-<div x-show="showExportModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="mt-3">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Export Chat Data</h3>
-            
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="date" x-model="exportStartDate" class="px-3 py-2 border border-gray-300 rounded-md">
-                    <input type="date" x-model="exportEndDate" class="px-3 py-2 border border-gray-300 rounded-md">
-                </div>
-            </div>
-            
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Format</label>
-                <select x-model="exportFormat" class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                    <option value="csv">CSV</option>
-                    <option value="excel">Excel</option>
-                </select>
-            </div>
-            
-            <div class="flex justify-end space-x-3">
-                <button @click="showExportModal = false" class="px-4 py-2 text-gray-600 hover:text-gray-800">
-                    Cancel
-                </button>
-                <button @click="performExport()" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-                    Export
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Data Initialization -->
 <script>
 window.chatData = {
-    users: @json($chatUsers),
-    recentConversations: @json($recentConversations)
+    conversations: @json($conversations ?? []),
+    stats: @json($stats ?? []),
+    currentUserId: {{ auth()->id() }}
 };
 </script>
 
 <!-- Alpine.js Logic -->
 <script>
 document.addEventListener('alpine:init', () => {
-    Alpine.data('adminChat', () => ({
-        users: window.chatData.users,
-        filteredUsers: window.chatData.users,
-        recentConversations: window.chatData.recentConversations,
-        stats: {},
+    Alpine.data('adminChatPanel', () => ({
+        conversations: window.chatData.conversations || [],
+        filteredConversations: window.chatData.conversations || [],
+        selectedConversation: null,
+        messages: [],
+        stats: window.chatData.stats || {},
         searchQuery: '',
-        statusFilter: '',
-        showExportModal: false,
-        exportStartDate: '',
-        exportEndDate: '',
-        exportFormat: 'csv',
+        newMessage: '',
+        sending: false,
+        loading: false,
+        currentUserId: {{ auth()->id() }},
+        pollingInterval: null,
         
         init() {
+            console.log('AdminChatPanel initialized');
+            console.log('Initial conversations:', this.conversations);
+            console.log('Current user ID:', this.currentUserId);
+            
+            // Make this instance globally accessible for debugging
+            window.adminChatPanel = this;
+            
             this.loadStats();
-            this.exportStartDate = new Date().toISOString().split('T')[0];
-            this.exportEndDate = new Date().toISOString().split('T')[0];
+            this.startPolling();
         },
         
         async loadStats() {
@@ -241,42 +243,204 @@ document.addEventListener('alpine:init', () => {
             }
         },
         
-        searchUsers() {
+        filterConversations() {
             if (!this.searchQuery.trim()) {
-                this.filteredUsers = this.users;
+                this.filteredConversations = this.conversations;
                 return;
             }
             
-            this.filteredUsers = this.users.filter(user => 
-                user.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-                user.email.toLowerCase().includes(this.searchQuery.toLowerCase())
+            this.filteredConversations = this.conversations.filter(conv =>
+                conv.user_name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+                conv.user_email.toLowerCase().includes(this.searchQuery.toLowerCase())
             );
         },
-        
-        filterUsers() {
-            let filtered = this.users;
-            
-            if (this.searchQuery.trim()) {
-                filtered = filtered.filter(user => 
-                    user.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-                    user.email.toLowerCase().includes(this.searchQuery.toLowerCase())
-                );
-            }
-            
-            if (this.statusFilter) {
-                // Add status filtering logic here
-            }
-            
-            this.filteredUsers = filtered;
+
+        openConversation(conversation) {
+            console.log('Opening conversation:', conversation);
+            this.selectedConversation = conversation;
+            console.log('Selected conversation set to:', this.selectedConversation);
+            this.loadMessages(conversation.id);
         },
-        
-        openChat(user) {
-            window.location.href = `/admin/chat/${user.id}`;
+
+        closeConversation() {
+            this.selectedConversation = null;
+            this.messages = [];
         },
-        
-        getUserName(userId) {
-            const user = this.users.find(u => u.id == userId);
-            return user ? user.name : 'Unknown User';
+
+        async loadMessages(userId) {
+            this.loading = true;
+            console.log('Starting loadMessages for userId:', userId);
+            
+            try {
+                const url = `/admin/chat/${userId}/messages`;
+                console.log('Fetching from URL:', url);
+                
+                const response = await fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+                
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Response error text:', errorText);
+                    throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Messages response data:', data);
+
+                if (data.success) {
+                    this.messages = data.messages || [];
+                    console.log('Messages set to:', this.messages);
+                    this.scrollToBottom();
+                    this.markConversationAsRead(userId);
+                } else {
+                    console.error('API returned success: false', data);
+                    this.messages = [];
+                }
+            } catch (error) {
+                console.error('Error in loadMessages:', error);
+                this.messages = []; // Reset to empty array on error
+            } finally {
+                this.loading = false;
+                console.log('loadMessages completed, loading:', this.loading);
+            }
+        },
+
+        markConversationAsRead(userId) {
+            // Update the conversation's unread count
+            const conversation = this.conversations.find(c => c.id === userId);
+            if (conversation) {
+                conversation.unread_count = 0;
+            }
+        },
+
+        async sendMessage() {
+            console.log('sendMessage called');
+            console.log('newMessage:', this.newMessage);
+            console.log('selectedConversation:', this.selectedConversation);
+            
+            if (!this.newMessage.trim() || !this.selectedConversation) {
+                console.log('Cannot send message - validation failed:', {
+                    hasMessage: !!this.newMessage.trim(),
+                    hasConversation: !!this.selectedConversation,
+                    messageLength: this.newMessage.length
+                });
+                return;
+            }
+
+            console.log('Sending message to user:', this.selectedConversation.id);
+            this.sending = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('message', this.newMessage);
+                
+                const url = `/admin/chat/${this.selectedConversation.id}/reply`;
+                console.log('Sending to URL:', url);
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                });
+
+                console.log('Send message response status:', response.status);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Send message error response:', errorText);
+                    throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+                }
+
+                const data = await response.json();
+                console.log('Message sent response data:', data);
+                
+                if (data.success && data.message) {
+                    console.log('Adding message to messages array:', data.message);
+                    this.messages.push(data.message);
+                    this.newMessage = '';
+                    this.scrollToBottom();
+                    this.refreshData();
+                } else {
+                    console.error('Send message API returned success: false', data);
+                    alert('Failed to send message. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error in sendMessage:', error);
+                alert('Error sending message. Please try again.');
+            } finally {
+                this.sending = false;
+                console.log('sendMessage completed, sending:', this.sending);
+            }
+        },
+
+        startPolling() {
+            this.pollingInterval = setInterval(() => {
+                this.checkForNewMessages();
+                this.loadStats();
+            }, 5000);
+        },
+
+        stopPolling() {
+            if (this.pollingInterval) {
+                clearInterval(this.pollingInterval);
+            }
+        },
+
+        async checkForNewMessages() {
+            if (!this.selectedConversation) return;
+
+            try {
+                const lastMessageId = this.messages.length > 0 ? this.messages[this.messages.length - 1].id : 0;
+                const response = await fetch(`/admin/chat/${this.selectedConversation.id}/messages?since=${lastMessageId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.messages && data.messages.length > 0) {
+                        this.messages.push(...data.messages);
+                        this.scrollToBottom();
+                        this.refreshData();
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking for new messages:', error);
+            }
+        },
+
+        async refreshData() {
+            try {
+                const response = await fetch('/admin/chat', {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    this.conversations = data.conversations || [];
+                    this.filterConversations();
+                }
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+            }
+        },
+
+        scrollToBottom() {
+            this.$nextTick(() => {
+                const container = document.getElementById('chat-messages-area');
+                if (container) {
+                    container.scrollTop = container.scrollHeight;
+                }
+            });
         },
         
         formatTime(timestamp) {
@@ -291,22 +455,29 @@ document.addEventListener('alpine:init', () => {
         },
         
         exportChats() {
-            this.showExportModal = true;
-        },
-        
-        async performExport() {
+            // Direct export without modal
+            const today = new Date().toISOString().split('T')[0];
             const params = new URLSearchParams({
-                format: this.exportFormat,
-                start_date: this.exportStartDate,
-                end_date: this.exportEndDate
+                format: 'csv',
+                start_date: today,
+                end_date: today
             });
             
             window.open(`/admin/chat/export?${params}`, '_blank');
-            this.showExportModal = false;
         },
         
-        refreshStats() {
-            this.loadStats();
+        // Test function for debugging
+        testOpenFirstConversation() {
+            console.log('Testing: Opening first conversation');
+            if (this.conversations.length > 0) {
+                this.openConversation(this.conversations[0]);
+            } else {
+                console.log('No conversations available to test');
+            }
+        },
+
+        destroy() {
+            this.stopPolling();
         }
     }));
 });

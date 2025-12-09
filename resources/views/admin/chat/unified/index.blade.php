@@ -8,10 +8,10 @@
                 <div class="flex justify-between items-center mb-6">
                     <h1 class="text-3xl font-bold text-gray-900">Unified Chat Management</h1>
                     <div class="flex space-x-3">
-                        <button onclick="exportChats()" class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">
+                        <button onclick="exportUnifiedChats()" class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">
                             Export to Excel
                         </button>
-                        <button onclick="refreshStats()" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                        <button onclick="refreshUnifiedStats()" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
                             Refresh Stats
                         </button>
                         <a href="{{ route('admin.chat.index') }}" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">
@@ -430,8 +430,14 @@
 </div>
 
 <script>
-let currentChatId = null;
-let stats = {};
+// Namespace for unified chat functions to prevent conflicts
+window.UnifiedChat = {
+    currentChatId: null,
+    stats: {}
+};
+
+let currentChatId = window.UnifiedChat.currentChatId;
+let stats = window.UnifiedChat.stats;
 
 // Load statistics
 async function loadStats() {
@@ -473,11 +479,11 @@ function updateStatsDisplay() {
     document.getElementById('assigned-to-me').textContent = stats.assigned_to_me || 0;
 }
 
-function refreshStats() {
+function refreshUnifiedStats() {
     loadStats();
 }
 
-function exportChats() {
+function exportUnifiedChats() {
     const params = new URLSearchParams(window.location.search);
     window.open(`{{ route('admin.chat.unified.export') }}?${params}`, '_blank');
 }
@@ -499,7 +505,7 @@ function closeChat(chatId) {
     }
     
     if (confirm('Are you sure you want to close this chat?')) {
-        fetch(`/admin/chat/unified/${chatId}/close`, {
+        fetch(`{{ route('admin.chat.unified.close', ['chat' => '__CHAT_ID__']) }}`.replace('__CHAT_ID__', chatId), {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -524,7 +530,7 @@ function archiveChat(chatId) {
     }
     
     if (confirm('Are you sure you want to archive this chat?')) {
-        fetch(`/admin/chat/unified/${chatId}/archive`, {
+        fetch(`{{ route('admin.chat.unified.archive', ['chat' => '__CHAT_ID__']) }}`.replace('__CHAT_ID__', chatId), {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -548,7 +554,7 @@ function markAsRead(chatId) {
         return;
     }
     
-    fetch(`/admin/chat/unified/${chatId}/mark-read`, {
+    fetch(`{{ route('admin.chat.unified.mark-read', ['chat' => '__CHAT_ID__']) }}`.replace('__CHAT_ID__', chatId), {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -571,7 +577,7 @@ function markAsUnread(chatId) {
         return;
     }
     
-    fetch(`/admin/chat/unified/${chatId}/mark-unread`, {
+    fetch(`{{ route('admin.chat.unified.mark-unread', ['chat' => '__CHAT_ID__']) }}`.replace('__CHAT_ID__', chatId), {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -594,7 +600,7 @@ function toggleActive(chatId) {
         return;
     }
     
-    fetch(`/admin/chat/unified/${chatId}/toggle-active`, {
+    fetch(`{{ route('admin.chat.unified.toggle-active', ['chat' => '__CHAT_ID__']) }}`.replace('__CHAT_ID__', chatId), {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -618,7 +624,7 @@ function deleteChat(chatId) {
     }
     
     if (confirm('Are you sure you want to delete this chat? This action cannot be undone.')) {
-        fetch(`/admin/chat/unified/${chatId}/delete`, {
+        fetch(`{{ route('admin.chat.unified.delete', ['chat' => '__CHAT_ID__']) }}`.replace('__CHAT_ID__', chatId), {
             method: 'DELETE',
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -645,7 +651,7 @@ document.getElementById('assignForm').addEventListener('submit', function(e) {
         return;
     }
 
-    fetch(`/admin/chat/unified/${currentChatId}/assign`, {
+    fetch(`{{ route('admin.chat.unified.assign', ['chat' => '__CHAT_ID__']) }}`.replace('__CHAT_ID__', currentChatId), {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),

@@ -7,12 +7,13 @@ use App\Http\Controllers\Admin\QuoteController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\ChatController;
+use App\Http\Controllers\Admin\UnifiedChatController;
 use App\Http\Controllers\Admin\ChatSettingsController;
 use App\Http\Controllers\Admin\ServiceController as AdminServiceController;
 use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/analytics', [DashboardController::class, 'analytics'])->name('analytics');
@@ -65,9 +66,28 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::prefix('chat')->name('chat.')->group(function () {
         Route::get('/', [ChatController::class, 'index'])->name('index');
         Route::get('/{userId}', [ChatController::class, 'show'])->name('show');
+        Route::post('/{userId}/reply', [ChatController::class, 'reply'])->name('reply');
+        Route::get('/{userId}/messages', [ChatController::class, 'messages'])->name('messages');
         Route::get('/statistics', [ChatController::class, 'statistics'])->name('statistics');
         Route::get('/search-users', [ChatController::class, 'searchUsers'])->name('search-users');
         Route::get('/export', [ChatController::class, 'export'])->name('export');
+    });
+
+    // Unified Chat Management
+    Route::prefix('chat/unified')->name('chat.unified.')->group(function () {
+        Route::get('/', [UnifiedChatController::class, 'index'])->name('index');
+        Route::get('/{chat}', [UnifiedChatController::class, 'show'])->name('show');
+        Route::get('/{chat}/messages', [UnifiedChatController::class, 'messages'])->name('messages');
+        Route::post('/{chat}/reply', [UnifiedChatController::class, 'reply'])->name('reply');
+        Route::post('/{chat}/assign', [UnifiedChatController::class, 'assign'])->name('assign');
+        Route::post('/{chat}/close', [UnifiedChatController::class, 'close'])->name('close');
+        Route::post('/{chat}/archive', [UnifiedChatController::class, 'archive'])->name('archive');
+        Route::post('/{chat}/mark-read', [UnifiedChatController::class, 'markAsRead'])->name('mark-read');
+        Route::post('/{chat}/mark-unread', [UnifiedChatController::class, 'markAsUnread'])->name('mark-unread');
+        Route::post('/{chat}/toggle-active', [UnifiedChatController::class, 'toggleActive'])->name('toggle-active');
+        Route::delete('/{chat}/delete', [UnifiedChatController::class, 'delete'])->name('delete');
+        Route::get('/statistics', [UnifiedChatController::class, 'statistics'])->name('statistics');
+        Route::get('/export', [UnifiedChatController::class, 'export'])->name('export');
     });
 
     // Chat Settings

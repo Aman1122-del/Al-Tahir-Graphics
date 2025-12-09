@@ -19,6 +19,5 @@ class AdminServiceProvider extends ServiceProvider
         // Register middleware aliases
     //     $kernel->alias('admin', AdminMiddleware::class);
     //     $kernel->alias('designer', DesignerMiddleware::class);
-    // }
-}
+    }
 }

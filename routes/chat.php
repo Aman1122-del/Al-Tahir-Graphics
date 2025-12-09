@@ -21,8 +21,9 @@ Route::prefix('chatbot')->group(function () {
 // Authenticated internal chat routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+    Route::post('/chat/start', [ChatController::class, 'startChat'])->name('chat.start');
     Route::post('/chat/send', [ChatController::class, 'sendMessage'])->name('chat.send');
-    Route::get('/chat/messages/{user_id}', [ChatController::class, 'fetchMessages'])->name('chat.messages');
+    Route::get('/chat/messages/{chat_id}', [ChatController::class, 'fetchMessages'])->name('chat.messages');
     Route::post('/chat/mark-read', [ChatController::class, 'markAsRead'])->name('chat.mark-read');
     Route::get('/chat/unread-count', [ChatController::class, 'getUnreadCount'])->name('chat.unread-count');
     Route::get('/chat/users', [ChatController::class, 'getChatUsers'])->name('chat.users');

@@ -13,7 +13,7 @@
         </div>
     </section>
 
-    <!-- Stats Section -->
+    <!-- Statistics Section -->
     <section class="mt-14 grid gap-6 sm:grid-cols-3" data-aos="fade-up">
         @php
             $stats = [

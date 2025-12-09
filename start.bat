@@ -1,0 +1,1 @@
+E:\xampp\php\php.exe .\artisan serve

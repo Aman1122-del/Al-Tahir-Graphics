@@ -22,10 +22,7 @@
                         Design
                     </a>
                     <a href="{{ route('about') }}" class="inline-flex items-center px-3 py-2 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-700 hover:text-blue-600 hover:border-blue-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:text-blue-600 focus:border-blue-300 transition-colors duration-200 ease-in-out rounded-t">
-                        About
-                    </a>
-                    <a href="{{ route('contact') }}" class="inline-flex items-center px-3 py-2 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-700 hover:text-blue-600 hover:border-blue-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:text-blue-600 focus:border-blue-300 transition-colors duration-200 ease-in-out rounded-t">
-                        Contact
+                        About Us
                     </a>
                     @auth
                     <a href="{{ route('chat.index') }}" class="inline-flex items-center px-3 py-2 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-700 hover:text-blue-600 hover:border-blue-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:text-blue-600 focus:border-blue-300 transition-colors duration-200 ease-in-out rounded-t">
@@ -112,11 +109,8 @@
             <x-responsive-nav-link :href="route('design')" :active="request()->routeIs('design')">
                 Design
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('about')" :active="request()->routeIs('about')">
-                About
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('contact')" :active="request()->routeIs('contact')">
-                Contact
+            <x-responsive-nav-link :href="route('about')" :active="request()->routeIs('about', 'contact')">
+                About Us
             </x-responsive-nav-link>
             @auth
             <x-responsive-nav-link :href="route('chat.index')" :active="request()->routeIs('chat.*')">

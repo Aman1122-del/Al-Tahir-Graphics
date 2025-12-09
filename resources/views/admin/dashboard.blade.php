@@ -61,7 +61,7 @@
                                 <button
                                     x-data="{ id: {{ $svc->id }}, active: {{ $svc->is_active ? 'true' : 'false' }} }"
                                     @click="
-                                        fetch('{{ route('admin.services.toggle', '') }}/' + id, {
+                                        fetch('{{ route('admin.services.toggle', ['service' => '__SERVICE_ID__']) }}'.replace('__SERVICE_ID__', id), {
                                             method: 'POST',
                                             headers: {
                                                 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content

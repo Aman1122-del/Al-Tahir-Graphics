@@ -14,10 +14,7 @@
         
         <!-- Alpine.js is bundled via Vite -->
         
-        <!-- Pusher loaded only if broadcasting key present -->
-        @if(config('broadcasting.connections.pusher.key'))
-            <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
-        @endif
+        <!-- No external dependencies - using database polling -->
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-50">
@@ -49,7 +46,6 @@
                             <h4 class="text-md font-semibold mb-4">Company</h4>
                             <ul class="space-y-2 text-gray-300">
                                 <li><a href="{{ route('about') }}" class="hover:text-white">About Us</a></li>
-                                <li><a href="{{ route('contact') }}" class="hover:text-white">Contact</a></li>
                                 <li><a href="#" class="hover:text-white">Portfolio</a></li>
                                 <li><a href="#" class="hover:text-white">Blog</a></li>
                             </ul>
@@ -71,27 +67,124 @@
         </div>
 
         <!-- Floating Chat Widget -->
-        @include('components.floating-chat')
+        @auth
+            @include('components.chat-widget')
+        @endauth
         @include('components.chatbot')
         
         <!-- Cart Count Update Script -->
         <script>
+            // Global cart management
+            window.CartManager = {
+                updateCartCount: function(count) {
+                    const cartCountElements = document.querySelectorAll('.cart-count');
+                    cartCountElements.forEach(el => {
+                        el.textContent = count || 0;
+                    });
+                },
+                
+                fetchCartCount: function() {
+                    fetch('{{ route("cart.summary") }}')
+                        .then(response => response.json())
+                        .then(data => {
+                            this.updateCartCount(data.item_count);
+                        })
+                        .catch(error => {
+                            console.error('Error fetching cart count:', error);
+                            this.updateCartCount(0);
+                        });
+                },
+                
+                showToast: function(message, type = 'success') {
+                    const toast = document.createElement('div');
+                    toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white z-50 transform transition-all duration-300 translate-x-full opacity-0`;
+                    
+                    switch (type) {
+                        case 'success':
+                            toast.classList.add('bg-green-600');
+                            break;
+                        case 'error':
+                            toast.classList.add('bg-red-600');
+                            break;
+                        case 'warning':
+                            toast.classList.add('bg-yellow-600');
+                            break;
+                        default:
+                            toast.classList.add('bg-blue-600');
+                    }
+                    
+                    toast.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                ${type === 'success' ? 
+                                    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>' :
+                                    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>'
+                                }
+                            </svg>
+                            <span>${message}</span>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(toast);
+                    
+                    // Animate in
+                    setTimeout(() => {
+                        toast.classList.remove('translate-x-full', 'opacity-0');
+                    }, 100);
+                    
+                    // Auto-hide after 5 seconds
+                    setTimeout(() => {
+                        toast.classList.add('translate-x-full', 'opacity-0');
+                        setTimeout(() => {
+                            if (toast.parentNode) {
+                                document.body.removeChild(toast);
+                            }
+                        }, 300);
+                    }, 5000);
+                },
+                
+                showCartAddedIndicator: function() {
+                    // Animate the cart icon in the navigation
+                    const cartIcon = document.querySelector('a[href*="cart"]');
+                    if (cartIcon) {
+                        cartIcon.classList.add('animate-pulse');
+                        setTimeout(() => {
+                            cartIcon.classList.remove('animate-pulse');
+                        }, 2000);
+                    }
+                    
+                    // Show a temporary "View Cart" button
+                    const viewCartBtn = document.createElement('div');
+                    viewCartBtn.className = 'fixed bottom-4 right-4 z-50';
+                    viewCartBtn.innerHTML = `
+                        <a href="{{ route('cart.view') }}" 
+                           class="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-700 transition-colors animate-bounce">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                            View Cart
+                        </a>
+                    `;
+                    
+                    document.body.appendChild(viewCartBtn);
+                    
+                    // Auto-hide after 5 seconds
+                    setTimeout(() => {
+                        viewCartBtn.style.opacity = '0';
+                        viewCartBtn.style.transform = 'translateY(20px)';
+                        setTimeout(() => {
+                            if (viewCartBtn.parentNode) {
+                                document.body.removeChild(viewCartBtn);
+                            }
+                        }, 300);
+                    }, 5000);
+                }
+            };
+            
             // Update cart count on page load
             document.addEventListener('DOMContentLoaded', function() {
-                fetchCartCount();
+                window.CartManager.fetchCartCount();
             });
-            
-            function fetchCartCount() {
-                fetch('{{ route("cart.summary") }}')
-                    .then(response => response.json())
-                    .then(data => {
-                        const cartCount = document.querySelector('.cart-count');
-                        if (cartCount) {
-                            cartCount.textContent = data.item_count || 0;
-                        }
-                    })
-                    .catch(error => console.error('Error fetching cart count:', error));
-            }
         </script>
 
         @stack('scripts')

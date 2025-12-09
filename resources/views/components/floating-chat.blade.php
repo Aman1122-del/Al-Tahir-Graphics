@@ -148,47 +148,107 @@ document.addEventListener('alpine:init', () => {
         unreadCount: 0,
         currentUserId: {{ auth()->id() }},
         supportUserId: null,
+        currentChatId: null,
+        pollingInterval: null,
         
         init() {
             this.loadUnreadCount();
-            this.initializePusher();
             this.findSupportUser();
+            this.startPolling();
         },
         
         async findSupportUser() {
             try {
-                const response = await fetch('/chat/users');
+                const response = await fetch('{{ route("chat.users") }}');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Invalid response format');
+                }
                 const data = await response.json();
                 
                 if (data.success && data.users.length > 0) {
-                    // Find first admin/support user
-                    const supportUser = data.users.find(user => 
-                        user.roles && (user.roles.includes('admin') || user.roles.includes('support'))
-                    );
+                    // Find first admin user
+                    const supportUser = data.users.find(user => user.is_admin);
                     
                     if (supportUser) {
                         this.supportUserId = supportUser.id;
-                        this.loadMessages();
+                        this.findOrCreateChat();
                     }
                 }
             } catch (error) {
                 console.error('Error finding support user:', error);
+                // Graceful fallback - hide chat widget
+                this.isOpen = false;
             }
         },
         
         toggleChat() {
             this.isOpen = !this.isOpen;
             if (this.isOpen) {
-                this.loadMessages();
-                this.markAsRead();
+                this.findOrCreateChat();
+            }
+        },
+        
+        async findOrCreateChat() {
+            try {
+                // First, try to find existing active chat
+                const response = await fetch('{{ route("chat.index") }}');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.chats && data.chats.length > 0) {
+                        this.currentChatId = data.chats[0].id;
+                        this.loadMessages();
+                        this.markAsRead();
+                        return;
+                    }
+                }
+                
+                // If no existing chat, create a new one
+                await this.createNewChat();
+            } catch (error) {
+                console.error('Error finding or creating chat:', error);
+            }
+        },
+        
+        async createNewChat() {
+            try {
+                const response = await fetch('{{ route("chat.start") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        message: 'Hello! I need support.',
+                        topic: 'General Support'
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    this.currentChatId = data.chat_id;
+                    this.loadMessages();
+                }
+            } catch (error) {
+                console.error('Error creating new chat:', error);
             }
         },
         
         async loadMessages() {
-            if (!this.supportUserId) return;
+            if (!this.currentChatId) return;
             
             try {
-                const response = await fetch(`/chat/messages/${this.supportUserId}`);
+                const response = await fetch(`{{ route('chat.messages', ['chat_id' => '__CHAT_ID__']) }}`.replace('__CHAT_ID__', this.currentChatId));
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Invalid response format');
+                }
                 const data = await response.json();
                 
                 if (data.success) {
@@ -202,20 +262,20 @@ document.addEventListener('alpine:init', () => {
         
         async sendMessage() {
             if (!this.newMessage.trim() && !this.selectedFile) return;
-            if (!this.supportUserId) return;
+            if (!this.currentChatId) return;
             
             this.sending = true;
             
             try {
                 const formData = new FormData();
-                formData.append('receiver_id', this.supportUserId);
+                formData.append('chat_id', this.currentChatId);
                 formData.append('message', this.newMessage);
                 
                 if (this.selectedFile) {
                     formData.append('file', this.selectedFile);
                 }
                 
-                const response = await fetch('/chat/send', {
+                const response = await fetch('{{ route("chat.send") }}', {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
@@ -240,21 +300,38 @@ document.addEventListener('alpine:init', () => {
         },
         
         async markAsRead() {
-            if (!this.supportUserId) return;
+            if (!this.currentChatId) return;
             
             try {
-                await fetch('/chat/mark-read', {
+                await fetch('{{ route("chat.mark-read") }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
-                    body: JSON.stringify({ sender_id: this.supportUserId })
+                    body: JSON.stringify({ chat_id: this.currentChatId })
                 });
                 
                 this.unreadCount = 0;
             } catch (error) {
                 console.error('Error marking messages as read:', error);
+            }
+        },
+        
+        startPolling() {
+            // Poll for new messages every 3 seconds
+            this.pollingInterval = setInterval(() => {
+                if (this.isOpen && this.currentChatId) {
+                    this.loadMessages();
+                }
+                this.loadUnreadCount();
+            }, 3000);
+        },
+        
+        stopPolling() {
+            if (this.pollingInterval) {
+                clearInterval(this.pollingInterval);
+                this.pollingInterval = null;
             }
         },
         
@@ -272,7 +349,14 @@ document.addEventListener('alpine:init', () => {
         
         async loadUnreadCount() {
             try {
-                const response = await fetch('/chat/unread-count');
+                const response = await fetch('{{ route("chat.unread-count") }}');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Invalid response format');
+                }
                 const data = await response.json();
                 
                 if (data.success) {
@@ -303,24 +387,9 @@ document.addEventListener('alpine:init', () => {
             return date.toLocaleDateString();
         },
         
-        initializePusher() {
-            // Initialize Pusher for real-time updates
-            if (typeof Pusher !== 'undefined') {
-                const pusher = new Pusher('{{ config("broadcasting.connections.pusher.key") }}', {
-                    cluster: '{{ config("broadcasting.connections.pusher.options.cluster") }}'
-                });
-                
-                const channel = pusher.subscribe('chat-channel');
-                channel.bind('new-message', (data) => {
-                    if (data.receiver_id === this.currentUserId || data.message.sender_id === this.currentUserId) {
-                        // Reload messages if chat is open
-                        if (this.isOpen) {
-                            this.loadMessages();
-                        }
-                        this.loadUnreadCount();
-                    }
-                });
-            }
+        // Cleanup when component is destroyed
+        destroy() {
+            this.stopPolling();
         }
     }));
 });

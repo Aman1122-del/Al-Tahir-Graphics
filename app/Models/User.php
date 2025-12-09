@@ -36,6 +36,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_admin',
     ];
 
     /**
@@ -58,6 +59,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_admin' => 'boolean',
         ];
     }
 
@@ -108,20 +110,41 @@ class User extends Authenticatable
         return $this->hasMany(Message::class, 'receiver_id')->whereNull('read_at');
     }
 
+    // UnifiedChat relationships
+    public function chats(): HasMany
+    {
+        return $this->hasMany(UnifiedChat::class, 'created_by');
+    }
+
+    public function assignedChats(): HasMany
+    {
+        return $this->hasMany(UnifiedChat::class, 'assigned_to');
+    }
+
+    public function chatParticipants(): HasMany
+    {
+        return $this->hasMany(ChatParticipant::class, 'user_id');
+    }
+
+    public function sentChatMessages(): HasMany
+    {
+        return $this->hasMany(UnifiedChatMessage::class, 'sender_id');
+    }
+
     // Helper methods
     public function isAdmin(): bool
     {
-        return $this->hasRole('admin');
+        return $this->is_admin;
     }
 
     public function isDesigner(): bool
     {
-        return $this->hasRole('designer');
+        return $this->is_admin; // For now, treat admin as designer too
     }
 
     public function isSupport(): bool
     {
-        return $this->hasRole('support');
+        return $this->is_admin; // For now, treat admin as support too
     }
 
     public function canManageUsers(): bool
@@ -147,12 +170,12 @@ class User extends Authenticatable
     // Chat helper methods
     public function canChat(): bool
     {
-        return $this->hasRole(['admin', 'support', 'designer']) || !$this->hasRole(['admin', 'support', 'designer']);
+        return true; // All users can chat
     }
 
     public function canAccessChats(): bool
     {
-        return $this->hasRole(['admin', 'support']);
+        return true; // Allow all authenticated users to access chats
     }
 
     public function getUnreadMessageCount(): int
@@ -162,16 +185,33 @@ class User extends Authenticatable
 
     public function getChatUsers()
     {
-        if ($this->hasRole(['admin', 'support'])) {
-            // Admin/support can see all users they've chatted with
-            return User::whereHas('sentMessages', function ($query) {
-                $query->where('receiver_id', $this->id);
-            })->orWhereHas('receivedMessages', function ($query) {
-                $query->where('sender_id', $this->id);
+        if ($this->is_admin) {
+            // Admin can see all users who have participated in chats
+            return User::whereHas('chatParticipants', function ($query) {
+                $query->whereHas('chat', function ($chatQuery) {
+                    $chatQuery->whereHas('participants', function ($participantQuery) {
+                        $participantQuery->where('user_id', $this->id);
+                    });
+                });
             })->where('id', '!=', $this->id)->distinct()->get();
         } else {
-            // Regular users can only chat with admin/support
-            return User::role(['admin', 'support'])->get();
+            // Regular users can only chat with admin
+            return User::where('is_admin', true)->get();
         }
+    }
+
+    public function hasRole($roles): bool
+    {
+        if (!is_array($roles)) {
+            $roles = [$roles];
+        }
+        
+        // For now, treat admin as having all roles
+        if ($this->is_admin) {
+            return true;
+        }
+        
+        // Regular users don't have admin/support roles
+        return false;
     }
 }

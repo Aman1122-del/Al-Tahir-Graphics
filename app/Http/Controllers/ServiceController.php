@@ -9,13 +9,37 @@ use Illuminate\Http\Request;
 class ServiceController extends Controller
 {
     /**
-     * Display a listing of all active services.
+     * Display a listing of all active services with samples.
      */
     public function index()
     {
         $services = Service::active()->ordered()->get();
         
-        return view('pages.services', compact('services'));
+        // Get all active samples across all services for samples-first display
+        $allSamples = ServiceSample::with('service')
+            ->where('is_active', true)
+            ->whereHas('service', function($query) {
+                $query->where('is_active', true);
+            })
+            ->orderBy('sort_order')
+            ->orderBy('created_at', 'desc')
+            ->get();
+            
+        // Get unique categories across all samples
+        $allCategories = $allSamples->whereNotNull('sub_category')
+            ->pluck('sub_category')
+            ->unique()
+            ->sort()
+            ->values();
+            
+        // Get unique service types
+        $serviceTypes = $services->whereNotNull('category')
+            ->pluck('category')
+            ->unique()
+            ->sort()
+            ->values();
+        
+        return view('pages.services', compact('services', 'allSamples', 'allCategories', 'serviceTypes'));
     }
 
     /**

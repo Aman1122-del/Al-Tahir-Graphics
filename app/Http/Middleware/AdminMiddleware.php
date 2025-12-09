@@ -14,10 +14,13 @@ class AdminMiddleware
             return redirect()->route('login');
         }
 
-        if (!auth()->user()->hasRole(['admin', 'support'])) {
-            abort(403, 'Unauthorized access.');
+        $user = auth()->user();
+        
+        // Check if user has admin role or is_admin flag
+        if ($user->is_admin || (method_exists($user, 'hasRole') && $user->hasRole(['admin', 'support']))) {
+            return $next($request);
         }
 
-        return $next($request);
+        abort(403, 'Unauthorized access.');
     }
 }

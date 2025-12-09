@@ -142,7 +142,7 @@
             <div class="bg-white rounded-xl shadow ring-1 ring-black/5 p-6">
                 <h2 class="text-xl font-semibold mb-4">Quick Actions</h2>
                 <div class="space-y-2">
-                    <form action="{{ route('admin.services.toggle', $service) }}" method="POST" class="inline">
+                    <form action="{{ route('admin.services.toggle', $service->id) }}" method="POST" class="inline">
                         @csrf
                         <button type="submit" class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded">
                             {{ $service->is_active ? 'Deactivate' : 'Activate' }} Service

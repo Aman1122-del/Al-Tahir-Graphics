@@ -36,8 +36,8 @@ Route::post('/cart/sync', function(\Illuminate\Http\Request $request) {
     return response()->json(['success' => true]);
 })->name('cart.sync');
 Route::view('/wedding-cards', 'pages.wedding-cards')->name('wedding.cards');
-Route::view('/about', 'pages.about')->name('about');
-Route::view('/contact', 'pages.contact')->name('contact');
+Route::view('/about', 'pages.about-us')->name('about');
+Route::view('/contact', 'pages.about-us')->name('contact');
 
 // Design Studio route
 Route::get('/design', function () {
@@ -84,3 +84,67 @@ Route::prefix('api/design')->group(function () {
     Route::get('/load/{design}', [DesignController::class, 'load'])->name('design.load');
     Route::post('/export', [DesignController::class, 'export'])->name('design.export');
 });
+
+// Temporary test route for debugging chat
+Route::get('/test-chat', function () {
+    $user = Auth::user();
+    if (!$user) {
+        return 'Not logged in';
+    }
+    
+    $admin = App\Models\User::where('is_admin', true)->first();
+    if (!$admin) {
+        return 'No admin found';
+    }
+    
+    $messages = App\Models\Message::where(function($q) use ($user, $admin) {
+        $q->where('sender_id', $user->id)->where('receiver_id', $admin->id);
+    })->orWhere(function($q) use ($user, $admin) {
+        $q->where('sender_id', $admin->id)->where('receiver_id', $user->id);
+    })->with(['sender:id,name', 'receiver:id,name'])->orderBy('created_at', 'asc')->get();
+    
+    return response()->json([
+        'user' => $user,
+        'admin' => $admin,
+        'messages_count' => $messages->count(),
+        'messages' => $messages
+    ]);
+})->middleware('auth');
+
+// Test route for sending messages
+Route::post('/test-send-message', function (Illuminate\Http\Request $request) {
+    $user = Auth::user();
+    if (!$user) {
+        return response()->json(['error' => 'Not logged in'], 401);
+    }
+    
+    $admin = App\Models\User::where('is_admin', true)->first();
+    if (!$admin) {
+        return response()->json(['error' => 'No admin found'], 404);
+    }
+    
+    try {
+        $message = App\Models\Message::create([
+            'sender_id' => $user->id,
+            'receiver_id' => $admin->id,
+            'message' => $request->input('message', 'Test message'),
+        ]);
+        
+        $message->load('sender');
+        
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+            'debug' => [
+                'user_id' => $user->id,
+                'admin_id' => $admin->id,
+                'user_is_admin' => $user->is_admin,
+                'admin_is_admin' => $admin->is_admin
+            ]
+        ]);
+    } catch (Exception $e) {
+        return response()->json([
+            'error' => 'Database error: ' . $e->getMessage()
+        ], 500);
+    }
+})->middleware('auth');

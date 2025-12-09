@@ -158,7 +158,7 @@ async function loadNewMessages() {
     isPolling = true;
     
     try {
-        const response = await fetch(`/admin/chat/unified/{{ $chat->id }}/messages?since=${lastMessageId}`, {
+        const response = await fetch(`{{ route('admin.chat.unified.messages', $chat) }}?since=${lastMessageId}`, {
             method: 'GET',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
@@ -276,7 +276,7 @@ document.getElementById('replyForm').addEventListener('submit', function(e) {
         return;
     }
     
-    fetch(`/admin/chat/unified/{{ $chat->id }}/reply`, {
+    fetch(`{{ route('admin.chat.unified.reply', $chat) }}`, {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -343,7 +343,7 @@ function addMessageToChat(message) {
 // Close chat function
 function closeChat(chatId) {
     if (confirm('Are you sure you want to close this chat?')) {
-        fetch(`/admin/chat/unified/${chatId}/close`, {
+        fetch(`{{ route('admin.chat.unified.close', ['chat' => '__CHAT_ID__']) }}`.replace('__CHAT_ID__', chatId), {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
