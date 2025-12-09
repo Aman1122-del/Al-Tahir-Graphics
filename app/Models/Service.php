@@ -33,6 +33,7 @@ class Service extends Model
         'is_active' => 'boolean',
         'sort_order' => 'integer',
         'gallery_images' => 'array',
+        'meta_keywords' => 'array',
     ];
 
     /**

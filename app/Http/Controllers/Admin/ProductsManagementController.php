@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-class ProductController extends Controller
+class ProductsManagementController extends Controller
 {
     public function index(Request $request)
     {
@@ -38,7 +38,7 @@ class ProductController extends Controller
             $query->where('is_active', $isActive);
         }
 
-        $services = $query->orderBy('sort_order')
+        $products = $query->orderBy('sort_order')
                          ->orderByDesc('id')
                          ->paginate(20)
                          ->appends($request->query());
@@ -50,12 +50,12 @@ class ProductController extends Controller
                             ->pluck('category')
                             ->sort();
 
-        return view('admin.services.index', compact('services', 'categories'));
+        return view('admin.products.index', compact('products', 'categories'));
     }
 
     public function create()
     {
-        return view('admin.services.create');
+        return view('admin.products.create');
     }
 
     public function store(StoreServiceRequest $request)
@@ -81,20 +81,19 @@ class ProductController extends Controller
             $data['gallery_images'] = $galleryPaths;
         }
 
-        $service = Service::create($data);
+        $product = Service::create($data);
+        $this->syncSamples($product, $request->input('samples', []), $request);
 
-        $this->syncSamples($service, $request->input('samples', []), $request);
-
-        return redirect()->route('admin.services.index')->with('status', 'Service created');
+        return redirect()->route('admin.products.index')->with('status', 'Product created successfully');
     }
 
-    public function edit(Service $service)
+    public function edit(Service $product)
     {
-        $service->load('samples');
-        return view('admin.services.edit', compact('service'));
+        $product->load('samples');
+        return view('admin.products.edit', compact('product'));
     }
 
-    public function update(UpdateServiceRequest $request, Service $service)
+    public function update(UpdateServiceRequest $request, Service $product)
     {
         $data = $request->validated();
         $data['slug'] = Str::slug($data['slug'] ?: $data['title']);
@@ -105,8 +104,8 @@ class ProductController extends Controller
         }
 
         if ($request->hasFile('image')) {
-            if ($service->image_path) {
-                Storage::disk('public')->delete($service->image_path);
+            if ($product->image_path) {
+                Storage::disk('public')->delete($product->image_path);
             }
             $data['image_path'] = $request->file('image')->store('products', 'public');
         }
@@ -114,8 +113,8 @@ class ProductController extends Controller
         // Handle gallery images
         if ($request->hasFile('gallery_images')) {
             // Delete old gallery images
-            if ($service->gallery_images) {
-                foreach ($service->gallery_images as $imagePath) {
+            if ($product->gallery_images) {
+                foreach ($product->gallery_images as $imagePath) {
                     Storage::disk('public')->delete($imagePath);
                 }
             }
@@ -127,23 +126,22 @@ class ProductController extends Controller
             $data['gallery_images'] = $galleryPaths;
         }
 
-        $service->update($data);
+        $product->update($data);
+        $this->syncSamples($product, $request->input('samples', []), $request);
 
-        $this->syncSamples($service, $request->input('samples', []), $request);
-
-        return redirect()->route('admin.services.index')->with('status', 'Service updated');
+        return redirect()->route('admin.products.index')->with('status', 'Product updated successfully');
     }
 
-    public function destroy(Service $service)
+    public function destroy(Service $product)
     {
-        if ($service->image_path) {
-            Storage::disk('public')->delete($service->image_path);
+        if ($product->image_path) {
+            Storage::disk('public')->delete($product->image_path);
         }
-        $service->delete();
-        return redirect()->route('admin.services.index')->with('status', 'Service deleted');
+        $product->delete();
+        return redirect()->route('admin.products.index')->with('status', 'Product deleted successfully');
     }
 
-    // Dynamic AJAX endpoints for real-time updates
+    // AJAX endpoints for real-time updates
     public function storeAjax(StoreServiceRequest $request)
     {
         $data = $request->validated();
@@ -167,17 +165,17 @@ class ProductController extends Controller
             $data['gallery_images'] = $galleryPaths;
         }
 
-        $service = Service::create($data);
-        $this->syncSamples($service, $request->input('samples', []), $request);
+        $product = Service::create($data);
+        $this->syncSamples($product, $request->input('samples', []), $request);
 
         return response()->json([
             'success' => true,
             'message' => 'Product created successfully',
-            'product' => $service->load('samples')
+            'product' => $product->load('samples')
         ]);
     }
 
-    public function updateAjax(UpdateServiceRequest $request, Service $service)
+    public function updateAjax(UpdateServiceRequest $request, Service $product)
     {
         $data = $request->validated();
         $data['slug'] = Str::slug($data['slug'] ?: $data['title']);
@@ -188,8 +186,8 @@ class ProductController extends Controller
         }
 
         if ($request->hasFile('image')) {
-            if ($service->image_path) {
-                Storage::disk('public')->delete($service->image_path);
+            if ($product->image_path) {
+                Storage::disk('public')->delete($product->image_path);
             }
             $data['image_path'] = $request->file('image')->store('products', 'public');
         }
@@ -197,8 +195,8 @@ class ProductController extends Controller
         // Handle gallery images
         if ($request->hasFile('gallery_images')) {
             // Delete old gallery images
-            if ($service->gallery_images) {
-                foreach ($service->gallery_images as $imagePath) {
+            if ($product->gallery_images) {
+                foreach ($product->gallery_images as $imagePath) {
                     Storage::disk('public')->delete($imagePath);
                 }
             }
@@ -210,44 +208,55 @@ class ProductController extends Controller
             $data['gallery_images'] = $galleryPaths;
         }
 
-        $service->update($data);
-        $this->syncSamples($service, $request->input('samples', []), $request);
+        $product->update($data);
+        $this->syncSamples($product, $request->input('samples', []), $request);
 
         return response()->json([
             'success' => true,
             'message' => 'Product updated successfully',
-            'product' => $service->load('samples')
+            'product' => $product->load('samples')
         ]);
     }
 
-    public function destroyAjax(Service $service)
+    public function destroyAjax(Service $product)
     {
-        if ($service->image_path) {
-            Storage::disk('public')->delete($service->image_path);
+        if ($product->image_path) {
+            Storage::disk('public')->delete($product->image_path);
         }
         
-        $serviceId = $service->id;
-        $service->delete();
+        $productId = $product->id;
+        $product->delete();
 
         return response()->json([
             'success' => true,
             'message' => 'Product deleted successfully',
-            'product_id' => $serviceId
+            'product_id' => $productId
         ]);
     }
 
-    public function toggleStatus(Service $service)
+    public function toggleStatus(Service $product)
     {
-        $service->update(['is_active' => !$service->is_active]);
+        $product->update(['is_active' => !$product->is_active]);
         
         return response()->json([
             'success' => true,
             'message' => 'Product status updated',
-            'product' => $service
+            'product' => $product
         ]);
     }
 
-    private function syncSamples(Service $service, array $samples, Request $request): void
+    public function toggleFeatured(Service $product)
+    {
+        $product->update(['is_featured' => !$product->is_featured]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Product featured status updated',
+            'product' => $product
+        ]);
+    }
+
+    private function syncSamples(Service $product, array $samples, Request $request): void
     {
         // Expect up to 10 items: each with id(optional), title, unit_price(optional), price_display, sample_type, etc.
         $existingIds = [];
@@ -264,7 +273,7 @@ class ProductController extends Controller
             ];
 
             if (isset($sampleData['id'])) {
-                $sample = ServiceSample::where('service_id', $service->id)->where('id', $sampleData['id'])->first();
+                $sample = ServiceSample::where('service_id', $product->id)->where('id', $sampleData['id'])->first();
                 if ($sample) {
                     if ($request->hasFile("samples.$index.image")) {
                         if ($sample->image_path) { Storage::disk('public')->delete($sample->image_path); }
@@ -280,20 +289,18 @@ class ProductController extends Controller
                 $payload['image_path'] = $request->file("samples.$index.image")->store('products', 'public');
             }
 
-            $payload['service_id'] = $service->id;
+            $payload['service_id'] = $product->id;
             $created = ServiceSample::create($payload);
             $existingIds[] = $created->id;
         }
 
         // Delete removed samples
         if (!empty($existingIds)) {
-            ServiceSample::where('service_id', $service->id)
+            ServiceSample::where('service_id', $product->id)
                 ->whereNotIn('id', $existingIds)
                 ->delete();
         } else {
-            ServiceSample::where('service_id', $service->id)->delete();
+            ServiceSample::where('service_id', $product->id)->delete();
         }
     }
 }
-
-

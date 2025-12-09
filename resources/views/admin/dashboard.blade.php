@@ -31,7 +31,7 @@
                 </div>
 
                 <!-- Quick Actions -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <a href="{{ route('admin.users.index') }}" class="bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-lg text-center">
                         <h3 class="text-lg font-semibold">Manage Users</h3>
                         <p class="text-sm opacity-90">Add, edit, and manage user accounts</p>
@@ -40,6 +40,11 @@
                     <a href="{{ route('admin.orders.index') }}" class="bg-green-500 hover:bg-green-600 text-white p-4 rounded-lg text-center">
                         <h3 class="text-lg font-semibold">Manage Orders</h3>
                         <p class="text-sm opacity-90">View and process customer orders</p>
+                    </a>
+                    
+                    <a href="{{ route('admin.products.index') }}" class="bg-orange-500 hover:bg-orange-600 text-white p-4 rounded-lg text-center">
+                        <h3 class="text-lg font-semibold">Products Management</h3>
+                        <p class="text-sm opacity-90">Full AJAX CRUD for products & services</p>
                     </a>
                     
                     <a href="{{ route('admin.reports.index') }}" class="bg-purple-500 hover:bg-purple-600 text-white p-4 rounded-lg text-center">

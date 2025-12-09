@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::table('services', function (Blueprint $table) {
             if (!Schema::hasColumn('services', 'slug')) {
-                $table->string('slug')->unique()->after('title');
+                $table->string('slug')->nullable()->after('title');
             }
             if (!Schema::hasColumn('services', 'image_path')) {
                 $table->string('image_path')->nullable()->after('image_url');
@@ -22,7 +22,6 @@ return new class extends Migration
     {
         Schema::table('services', function (Blueprint $table) {
             if (Schema::hasColumn('services', 'slug')) {
-                $table->dropUnique(['slug']);
                 $table->dropColumn('slug');
             }
             if (Schema::hasColumn('services', 'image_path')) {

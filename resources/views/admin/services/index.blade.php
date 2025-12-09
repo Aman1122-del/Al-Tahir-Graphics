@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <div class="max-w-7xl mx-auto">
     <div class="flex items-center justify-between mb-6">
         <h1 class="section-title">Products & Services</h1>
@@ -53,7 +54,7 @@
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
                 @forelse($services as $service)
-                <tr class="hover:bg-gray-50">
+                <tr class="hover:bg-gray-50" data-product-id="{{ $service->id }}">
                     <td class="px-6 py-4">
                         <div class="flex items-center space-x-3">
                             @if($service->image_path)
@@ -98,7 +99,7 @@
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $service->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                        <span class="status-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $service->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                             {{ $service->is_active ? 'Active' : 'Inactive' }}
                         </span>
                     </td>
@@ -114,14 +115,14 @@
                             </a>
                             <a href="{{ route('admin.services.edit', $service) }}" 
                                class="text-indigo-600 hover:text-indigo-900">Edit</a>
-                            <form action="{{ route('admin.services.destroy', $service) }}" 
-                                  method="POST" 
-                                  class="inline" 
-                                  onsubmit="return confirm('Are you sure you want to delete this product? This will also delete all its samples.')">
-                                @csrf
-                                @method('DELETE')
-                                <button class="text-red-600 hover:text-red-900">Delete</button>
-                            </form>
+                            <button class="toggle-status-btn text-yellow-600 hover:text-yellow-900" 
+                                    data-product-id="{{ $service->id }}" 
+                                    data-status="{{ $service->is_active ? 'true' : 'false' }}">
+                                {{ $service->is_active ? 'Deactivate' : 'Activate' }}
+                            </button>
+                            <button class="delete-product-btn text-red-600 hover:text-red-900" 
+                                    data-product-id="{{ $service->id }}" 
+                                    data-product-name="{{ $service->title }}">Delete</button>
                         </div>
                     </td>
                 </tr>
@@ -147,6 +148,10 @@
         {{ $services->links() }}
     </div>
 </div>
+
+@push('scripts')
+<script src="{{ asset('js/dynamic-catalog.js') }}"></script>
+@endpush
 @endsection
 
 

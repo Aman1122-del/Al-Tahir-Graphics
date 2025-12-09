@@ -2,13 +2,13 @@
 
 @section('content')
 <div class="max-w-4xl mx-auto">
-    <h1 class="section-title mb-6">Create Service</h1>
+    <h1 class="text-3xl font-bold mb-6">Create New Product</h1>
 
-    <form action="{{ route('admin.services.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6 ajax-form" data-action="create">
+    <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6 ajax-form" data-action="create">
         @csrf
         <div class="grid gap-4 md:grid-cols-2">
             <div>
-                <label class="form-label">Title</label>
+                <label class="form-label">Title *</label>
                 <input name="title" class="form-input" required />
             </div>
             <div>
@@ -16,7 +16,7 @@
                 <input name="slug" class="form-input" />
             </div>
             <div>
-                <label class="form-label">Base Price</label>
+                <label class="form-label">Base Price *</label>
                 <input name="price" type="number" step="0.01" class="form-input" required />
             </div>
             <div>
@@ -85,8 +85,9 @@
             <div id="samplesContainer" class="space-y-3"></div>
         </div>
 
-        <div class="flex justify-end">
-            <button type="submit" class="btn-primary" data-original-text="Create">Create</button>
+        <div class="flex justify-end space-x-3">
+            <a href="{{ route('admin.products.index') }}" class="btn-secondary">Cancel</a>
+            <button type="submit" class="btn-primary" data-original-text="Create Product">Create Product</button>
         </div>
     </form>
 </div>
@@ -154,8 +155,6 @@ document.getElementById('addSample').addEventListener('click', function(){
 </script>
 
 @push('scripts')
-<script src="{{ asset('js/dynamic-catalog.js') }}"></script>
+<script src="{{ asset('js/products-management.js') }}"></script>
 @endpush
 @endsection
-
-

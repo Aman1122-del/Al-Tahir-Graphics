@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\UnifiedChatController;
 use App\Http\Controllers\Admin\ChatSettingsController;
 use App\Http\Controllers\Admin\ServiceController as AdminServiceController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ProductsManagementController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
@@ -41,6 +42,22 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     // Services CRUD
     Route::resource('services', ProductController::class);
     
+    // Dynamic AJAX endpoints for real-time product updates
+    Route::post('services/ajax/store', [ProductController::class, 'storeAjax'])->name('services.ajax.store');
+    Route::put('services/ajax/{service}/update', [ProductController::class, 'updateAjax'])->name('services.ajax.update');
+    Route::delete('services/ajax/{service}/destroy', [ProductController::class, 'destroyAjax'])->name('services.ajax.destroy');
+    Route::post('services/ajax/{service}/toggle-status', [ProductController::class, 'toggleStatus'])->name('services.ajax.toggle-status');
+    
+    // Products Management - Dedicated full AJAX CRUD
+    Route::resource('products', ProductsManagementController::class);
+    
+    // AJAX endpoints for Products Management
+    Route::post('products/ajax/store', [ProductsManagementController::class, 'storeAjax'])->name('products.ajax.store');
+    Route::put('products/ajax/{product}/update', [ProductsManagementController::class, 'updateAjax'])->name('products.ajax.update');
+    Route::delete('products/ajax/{product}/destroy', [ProductsManagementController::class, 'destroyAjax'])->name('products.ajax.destroy');
+    Route::post('products/ajax/{product}/toggle-status', [ProductsManagementController::class, 'toggleStatus'])->name('products.ajax.toggle-status');
+    Route::post('products/ajax/{product}/toggle-featured', [ProductsManagementController::class, 'toggleFeatured'])->name('products.ajax.toggle-featured');
+    
     // Service Samples CRUD
     Route::resource('services.samples', \App\Http\Controllers\Admin\ServiceSampleController::class)->except(['show']);
     Route::resource('samples', \App\Http\Controllers\Admin\ServiceSampleController::class)->only(['index', 'edit', 'update', 'destroy']);
@@ -70,7 +87,6 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
         Route::get('/{userId}/messages', [ChatController::class, 'messages'])->name('messages');
         Route::get('/statistics', [ChatController::class, 'statistics'])->name('statistics');
         Route::get('/search-users', [ChatController::class, 'searchUsers'])->name('search-users');
-        Route::get('/export', [ChatController::class, 'export'])->name('export');
     });
 
     // Unified Chat Management
