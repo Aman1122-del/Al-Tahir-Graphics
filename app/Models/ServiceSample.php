@@ -9,18 +9,19 @@ use Illuminate\Support\Str;
 class ServiceSample extends Model
 {
     protected $fillable = [
-        'service_id',
-        'title',
-        'slug',
-        'description',
-        'unit_price',
-        'price_display',
-        'image_path',
-        'sub_category',
-        'sample_type',
-        'is_active',
-        'sort_order',
+        'service_id', 'title', 'slug', 'description',
+        'unit_price', 'price_display', 'image_path',
+        'sub_category', 'sample_type', 'is_active', 'sort_order',
     ];
+
+    // ✅ Frontend ko data bhejne ke liye zaroori line
+    protected $appends = ['formatted_price', 'full_image_url'];
+
+    // ✅ Naya accessor
+    public function getFullImageUrlAttribute(): string
+    {
+        return $this->getImagePathAttribute();
+    }
 
     protected $casts = [
         'unit_price' => 'decimal:2',
@@ -34,29 +35,39 @@ class ServiceSample extends Model
     }
 
     /**
-     * Get the local public image path for this sample.
+     * ✅ MAIN LOGIC YAHAN HAI
      */
     public function getImagePathAttribute(): string
     {
-        // If stored image path is available, use it via storage helper
-        if (!empty($this->attributes['image_path'])) {
-            return asset('storage/' . ltrim($this->attributes['image_path'], '/'));
+        // DB se value uthao
+        $imagePathValue = $this->attributes['image_path'] ?? null;
+
+        // Agar DB khali hai to default logo dikhao
+        if (empty($imagePathValue)) {
+            return asset('images/logo.jpg');
         }
 
-        // Fallback to a default image
-        return asset('images/logo.jpg');
+        // Logic: asset() function hamesha 'public' folder se start karta hai.
+
+        // Case 1: Agar DB mein path already 'images/' se shuru ho raha hai
+        // Example: 'images/wedding-cards/royal-gold-foil-wedding-card.jpg'
+        if (str_starts_with($imagePathValue, 'images/')) {
+            return asset($imagePathValue);
+            // Result: http://localhost/images/wedding-cards/... (Correct!)
+        }
+
+        // Case 2: Agar sirf filename hai
+        // Example: 'Wedding Card sample 02.jpg'
+        // To hum shuru mein 'images/' khud laga denge.
+        return asset('images/' . ltrim($imagePathValue, '/'));
+        // Result: http://localhost/images/Wedding Card sample 02.jpg (Correct!)
     }
 
-    /**
-     * Get the formatted price for display
-     */
     public function getFormattedPriceAttribute(): string
     {
-        // Use price_display if available, otherwise format unit_price
         if ($this->price_display) {
             return $this->price_display;
         }
-        
         return $this->unit_price ? 'PKR ' . number_format($this->unit_price, 0) : 'Price on request';
     }
 
@@ -69,32 +80,13 @@ class ServiceSample extends Model
     {
         static::creating(function (ServiceSample $sample) {
             if (empty($sample->slug)) {
-                $sample->slug = static::generateUniqueSlug($sample->title);
+                $sample->slug = Str::slug($sample->title);
             }
         });
-
         static::updating(function (ServiceSample $sample) {
-            // If slug is empty, regenerate
             if (empty($sample->slug)) {
-                $sample->slug = static::generateUniqueSlug($sample->title, $sample->id);
+                $sample->slug = Str::slug($sample->title);
             }
         });
-    }
-
-    private static function generateUniqueSlug(string $title, ?int $ignoreId = null): string
-    {
-        $base = Str::slug($title) ?: 'sample';
-        $slug = $base;
-        $suffix = 2;
-        while (static::query()
-            ->when($ignoreId, fn($q) => $q->where('id', '!=', $ignoreId))
-            ->where('slug', $slug)
-            ->exists()) {
-            $slug = $base . '-' . $suffix;
-            $suffix++;
-        }
-        return $slug;
     }
 }
-
-
