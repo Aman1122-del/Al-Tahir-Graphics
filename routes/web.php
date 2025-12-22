@@ -37,7 +37,15 @@ Route::post('/cart/sync', function(\Illuminate\Http\Request $request) {
 })->name('cart.sync');
 Route::view('/wedding-cards', 'pages.wedding-cards')->name('wedding.cards');
 Route::view('/about', 'pages.about-us')->name('about');
-Route::view('/contact', 'pages.contact')->name('contact');
+
+use App\Http\Controllers\ContactController;
+
+// Page dikhane k liye
+Route::get('/contact', [ContactController::class, 'index'])->name('contact');
+
+
+// Form submit karne k liye (ye wo route hai jo missing tha)
+Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 
 // Design Studio route
 Route::get('/design', function () {

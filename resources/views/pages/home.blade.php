@@ -48,11 +48,7 @@
                                         d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
                                 </svg>
                             </a>
-                            <a href="{{ route('services') }}#order"
-                                class="btn-secondary transform hover:scale-105 hover:shadow-lg transition-all duration-200 ease-in-out focus:outline-none"
-                                aria-label="Start your order now">
-                                Order Now
-                            </a>
+
                         </div>
                     </div>
 
@@ -114,7 +110,7 @@
                                 </div>
                                 <div
                                     class="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                                    <a href="{{ route('services') }}"
+                                    <a href="{{ route('service.show', $service) }}"
                                         class="inline-flex items-center px-3 py-1.5 bg-white/90 backdrop-blur-sm text-gray-900 text-sm font-medium rounded-lg hover:bg-white transition-colors duration-200">
                                         View Details
                                         <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -127,7 +123,7 @@
                             <div class="p-6">
                                 <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ $service->title }}</h3>
                                 <p class="text-gray-600 mb-4">{{ $service->price_display }}</p>
-                                <a href="{{ route('services') }}#order"
+                                <a href="{{ route('service.show', $service) }}"
                                     class="btn-primary w-full justify-center transform hover:scale-105 transition-transform duration-200">
                                     Order Now
                                 </a>

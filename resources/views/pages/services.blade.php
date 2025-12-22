@@ -155,10 +155,7 @@
                         class="inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 hover:scale-105 transition-all duration-300 hover:shadow-xl focus:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
                         Contact Us
                     </a>
-                    <a href="#"
-                        class="inline-flex items-center justify-center px-6 py-3 border border-blue-200 text-blue-600 font-medium rounded-lg hover:bg-blue-50 hover:scale-105 transition-all duration-300 hover:shadow-lg hover:border-blue-300 focus:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
-                        Request Quote
-                    </a>
+
                 </div>
             </div>
         </div>
