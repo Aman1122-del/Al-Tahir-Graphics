@@ -72,6 +72,7 @@
     @auth
         @include('components.chat-widget')
     @endauth
+    @include('components.whatsapp-widget')
     @include('components.chatbot')
 
     <!-- Cart Count Update Script -->
