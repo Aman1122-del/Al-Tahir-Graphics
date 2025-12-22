@@ -39,6 +39,9 @@
                             <a href="{{ route('admin.orders.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out">
                                 Orders
                             </a>
+                            <a href="{{ route('admin.returns.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out">
+                                Returns
+                            </a>
                             <a href="{{ route('admin.quotes.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out">
                                 Quotes
                             </a>
@@ -69,7 +72,7 @@
                                         </button>
                                     </form>
                                 @endif
-                                
+
                                 <div class="relative">
                                     <button class="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" id="user-menu-button">
                                         <span class="text-gray-700">{{ Auth::user()->name }}</span>
@@ -129,7 +132,7 @@
         document.addEventListener('click', function(event) {
             const userMenu = document.getElementById('user-menu');
             const userMenuButton = document.getElementById('user-menu-button');
-            
+
             if (!userMenuButton.contains(event.target) && !userMenu.contains(event.target)) {
                 userMenu.classList.add('hidden');
             }

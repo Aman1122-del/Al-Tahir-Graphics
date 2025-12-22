@@ -30,6 +30,11 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::post('orders/{order}/add-note', [OrderController::class, 'addNote'])->name('orders.add-note');
     Route::get('orders/export', [OrderController::class, 'export'])->name('orders.export');
 
+    // Return Requests Management
+    Route::get('returns', [App\Http\Controllers\ReturnRequestController::class, 'adminIndex'])->name('returns.index');
+    Route::get('returns/{returnRequest}', [App\Http\Controllers\ReturnRequestController::class, 'adminShow'])->name('returns.show');
+    Route::patch('returns/{returnRequest}/update', [App\Http\Controllers\ReturnRequestController::class, 'adminUpdate'])->name('returns.update');
+
     // Quotes Management
     Route::resource('quotes', QuoteController::class);
     Route::post('quotes/{quote}/assign-designer', [QuoteController::class, 'assignDesigner'])->name('quotes.assign-designer');
@@ -41,23 +46,23 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
 
     // Services CRUD
     Route::resource('services', ProductController::class);
-    
+
     // Dynamic AJAX endpoints for real-time product updates
     Route::post('services/ajax/store', [ProductController::class, 'storeAjax'])->name('services.ajax.store');
     Route::put('services/ajax/{service}/update', [ProductController::class, 'updateAjax'])->name('services.ajax.update');
     Route::delete('services/ajax/{service}/destroy', [ProductController::class, 'destroyAjax'])->name('services.ajax.destroy');
     Route::post('services/ajax/{service}/toggle-status', [ProductController::class, 'toggleStatus'])->name('services.ajax.toggle-status');
-    
+
     // Products Management - Dedicated full AJAX CRUD
     Route::resource('products', ProductsManagementController::class);
-    
+
     // AJAX endpoints for Products Management
     Route::post('products/ajax/store', [ProductsManagementController::class, 'storeAjax'])->name('products.ajax.store');
     Route::put('products/ajax/{product}/update', [ProductsManagementController::class, 'updateAjax'])->name('products.ajax.update');
     Route::delete('products/ajax/{product}/destroy', [ProductsManagementController::class, 'destroyAjax'])->name('products.ajax.destroy');
     Route::post('products/ajax/{product}/toggle-status', [ProductsManagementController::class, 'toggleStatus'])->name('products.ajax.toggle-status');
     Route::post('products/ajax/{product}/toggle-featured', [ProductsManagementController::class, 'toggleFeatured'])->name('products.ajax.toggle-featured');
-    
+
     // Service Samples CRUD
     Route::resource('services.samples', \App\Http\Controllers\Admin\ServiceSampleController::class)->except(['show']);
     Route::resource('samples', \App\Http\Controllers\Admin\ServiceSampleController::class)->only(['index', 'edit', 'update', 'destroy']);

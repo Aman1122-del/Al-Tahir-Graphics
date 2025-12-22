@@ -36,6 +36,7 @@ class CartController extends Controller
             'custom_requirements' => 'nullable|string|max:500',
             'unit_price' => 'nullable|numeric|min:0',
             'design_id' => 'nullable|exists:designs,id',
+            'wedding_details' => 'nullable|array',
             // Accept either a URL or a base64 data URL for previews
             'design_preview_url' => ['nullable', function ($attribute, $value, $fail) {
                 if ($value === null) return;
@@ -96,6 +97,7 @@ class CartController extends Controller
                 'unit_price' => $request->filled('unit_price') ? $request->unit_price : $service->price,
                 'custom_requirements' => $request->custom_requirements,
                 'design_preview_path' => $this->storePreviewIfProvided($request->design_preview_url),
+                'wedding_details' => $request->wedding_details,
             ]);
         }
 

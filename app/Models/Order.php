@@ -83,6 +83,14 @@ class Order extends Model
     }
 
     /**
+     * Get the return requests for the order.
+     */
+    public function returnRequests(): HasMany
+    {
+        return $this->hasMany(ReturnRequest::class);
+    }
+
+    /**
      * Get formatted total amount.
      */
     public function getFormattedTotalAmountAttribute(): string
@@ -130,7 +138,7 @@ class Order extends Model
         $prefix = 'ATG';
         $date = now()->format('Ymd');
         $random = strtoupper(substr(md5(uniqid()), 0, 6));
-        
+
         return $prefix . $date . $random;
     }
 

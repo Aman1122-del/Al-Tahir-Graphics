@@ -97,6 +97,7 @@
 
                         <x-slot name="content">
                             <x-dropdown-link :href="route('dashboard')">{{ __('Dashboard') }}</x-dropdown-link>
+                            <x-dropdown-link :href="route('returns.index')">{{ __('My Returns') }}</x-dropdown-link>
                             <x-dropdown-link :href="route('profile.edit')">{{ __('Profile') }}</x-dropdown-link>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
@@ -195,6 +196,9 @@
                 <div class="mt-3 space-y-1 px-2">
                     <x-responsive-nav-link :href="route('dashboard')">
                         {{ __('Dashboard') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('returns.index')">
+                        {{ __('My Returns') }}
                     </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('profile.edit')">
                         {{ __('Profile') }}

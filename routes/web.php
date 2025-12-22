@@ -79,6 +79,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Return/Cancellation routes
+    Route::resource('returns', App\Http\Controllers\ReturnRequestController::class)->except(['edit', 'update', 'destroy']);
+    Route::get('/returns/create', [App\Http\Controllers\ReturnRequestController::class, 'create'])->name('returns.create');
 });
 
 // Include route files
@@ -91,6 +95,24 @@ Route::prefix('api/design')->group(function () {
     Route::post('/save', [DesignController::class, 'save'])->name('design.save');
     Route::get('/load/{design}', [DesignController::class, 'load'])->name('design.load');
     Route::post('/export', [DesignController::class, 'export'])->name('design.export');
+});
+
+// Return request API routes
+Route::middleware('auth')->group(function () {
+    Route::get('/api/order/{order}/items', function(App\Models\Order $order) {
+        if ($order->user_id !== Auth::id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        return response()->json($order->orderItems->map(function($item) {
+            return [
+                'id' => $item->id,
+                'service_name' => $item->service_name,
+                'quantity' => $item->quantity,
+                'formatted_total_price' => $item->formatted_total_price,
+            ];
+        }));
+    });
 });
 
 // Temporary test route for debugging chat

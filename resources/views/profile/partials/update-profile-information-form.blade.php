@@ -24,6 +24,13 @@
         </div>
 
         <div>
+            <x-input-label for="username" :value="__('Username')" />
+            <x-text-input id="username" name="username" type="text" class="mt-1 block w-full" :value="old('username', $user->username)" autocomplete="username" />
+            <x-input-error class="mt-2" :messages="$errors->get('username')" />
+            <p class="mt-1 text-sm text-gray-600">{{ __('Leave blank to keep current username. Username must contain only letters, numbers, and underscores.') }}</p>
+        </div>
+
+        <div>
             <x-input-label for="email" :value="__('Email')" />
             <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
             <x-input-error class="mt-2" :messages="$errors->get('email')" />

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class OrderItem extends Model
 {
@@ -53,5 +54,13 @@ class OrderItem extends Model
     public function getFormattedTotalPriceAttribute(): string
     {
         return 'PKR ' . number_format($this->total_price, 0);
+    }
+
+    /**
+     * Get the return requests for the order item.
+     */
+    public function returnRequests(): HasMany
+    {
+        return $this->hasMany(ReturnRequest::class);
     }
 }

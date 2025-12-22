@@ -51,6 +51,27 @@
                                     <p class="text-sm text-slate-600 mt-1">
                                         {{ $item->sample ? $item->sample->formatted_price : $item->service->formatted_price }}
                                         each</p>
+                                    {{-- --- NEW: Wedding Details Display --- --}}
+                                    @if ($item->wedding_details)
+                                        <div class="mt-3 p-3 bg-blue-50/50 rounded-lg border border-blue-100">
+                                            <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-1">
+                                                Wedding Card Details</p>
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 text-sm">
+                                                <p><span class="text-slate-500">Groom:</span> <span
+                                                        class="font-bold text-slate-800">{{ $item->wedding_details['groom'] }}</span>
+                                                </p>
+                                                <p><span class="text-slate-500">Bride:</span> <span
+                                                        class="font-bold text-slate-800">{{ $item->wedding_details['bride'] }}</span>
+                                                </p>
+                                            </div>
+                                            @if (!empty($item->wedding_details['remarks']))
+                                                <p
+                                                    class="mt-1 text-sm italic text-slate-600 border-t border-blue-100 pt-1 mt-1">
+                                                    "{{ $item->wedding_details['remarks'] }}"
+                                                </p>
+                                            @endif
+                                        </div>
+                                    @endif
                                     @if ($item->design_id)
                                         <div class="mt-2 text-xs text-slate-600">
                                             Design attached — <a class="text-[--color-brand-blue] underline"
@@ -73,8 +94,9 @@
                                                 data-cart-item-id="{{ $item->id }}"
                                                 data-custom-requirements="{{ $item->custom_requirements ?? '' }}">
                                         </div>
-                                        <button
-                                            class="text-sm text-red-600 hover:text-red-800 font-medium remove-item-btn">Remove
+                                        <button class="text-sm text-red-600 hover:text-red-800 font-medium remove-item-btn"
+                                            data-cart-item-id="{{ $item->id }}">
+                                            Remove
                                         </button>
                                     </div>
                                 </div>

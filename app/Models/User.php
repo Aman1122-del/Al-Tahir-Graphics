@@ -13,12 +13,12 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
-    
+
     // Conditionally use HasRoles trait to avoid issues in testing
     use HasRoles {
         HasRoles::bootHasRoles as protected bootHasRolesParent;
     }
-    
+
     public static function bootHasRoles()
     {
         // Only boot HasRoles if not in testing environment
@@ -34,6 +34,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'username',
         'email',
         'password',
         'is_admin',
@@ -205,12 +206,12 @@ class User extends Authenticatable
         if (!is_array($roles)) {
             $roles = [$roles];
         }
-        
+
         // For now, treat admin as having all roles
         if ($this->is_admin) {
             return true;
         }
-        
+
         // Regular users don't have admin/support roles
         return false;
     }

@@ -17,11 +17,13 @@ class CartItem extends Model
         'unit_price',
         'custom_requirements',
         'design_preview_path',
+        'wedding_details', // Added this
     ];
 
     protected $casts = [
         'quantity' => 'integer',
         'unit_price' => 'decimal:2',
+        'wedding_details' => 'array', // Added this
     ];
 
     /**

@@ -30,7 +30,7 @@
     <div class="max-w-6xl mx-auto py-6 px-4 sm:px-6 lg:px-8" x-data="fullPageChat">
         <div class="bg-white rounded-2xl shadow-xl overflow-hidden" style="height: calc(100vh - 200px);">
             <div class="flex h-full">
-                
+
                 <!-- Chat History Sidebar -->
                 <div class="w-80 bg-gray-50 border-r border-gray-200 flex flex-col">
                     <!-- Sidebar Header -->
@@ -38,7 +38,7 @@
                         <h2 class="text-lg font-semibold text-gray-900">Chat History</h2>
                         <p class="text-sm text-gray-500">All your conversations</p>
                     </div>
-                    
+
                     <!-- Chat Sessions List -->
                     <div class="flex-1 overflow-y-auto p-4">
                         <div class="space-y-3">
@@ -57,7 +57,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Message Count Stats -->
                             <div class="bg-white rounded-lg p-3 border border-gray-200">
                                 <div class="text-center">
@@ -120,29 +120,29 @@
                                     <div class="max-w-xs lg:max-w-md">
                                         <!-- Message Bubble -->
                                         <div class="px-4 py-3 rounded-2xl shadow-sm"
-                                             :class="{ 
+                                             :class="{
                                                  'bg-gradient-to-r from-blue-500 to-blue-600 text-white': message.sender_id === currentUserId,
                                                  'bg-white text-gray-900 border border-gray-200': message.sender_id !== currentUserId
                                              }">
-                                            
+
                                             <!-- Sender Name (for received messages) -->
                                             <div x-show="message.sender_id !== currentUserId" class="text-xs text-gray-500 mb-1">
                                                 <span x-text="message.sender?.name || 'Support'"></span>
                                             </div>
-                                            
+
                                             <!-- Message Text -->
                                             <p class="text-sm leading-relaxed" x-text="message.message"></p>
-                                            
+
                                             <!-- File Attachment -->
                                             <div x-show="message.file_path" class="mt-3 p-2 rounded-lg"
-                                                 :class="{ 
+                                                 :class="{
                                                      'bg-blue-400 bg-opacity-20': message.sender_id === currentUserId,
                                                      'bg-gray-100': message.sender_id !== currentUserId
                                                  }">
-                                                <a :href="message.file_url" 
+                                                <a :href="message.file_url"
                                                    target="_blank"
                                                    class="inline-flex items-center text-xs font-medium underline"
-                                                   :class="{ 
+                                                   :class="{
                                                        'text-blue-100': message.sender_id === currentUserId,
                                                        'text-blue-600': message.sender_id !== currentUserId
                                                    }">
@@ -153,7 +153,7 @@
                                                 </a>
                                             </div>
                                         </div>
-                                        
+
                                         <!-- Timestamp -->
                                         <div class="mt-1 px-1" :class="{ 'text-right': message.sender_id === currentUserId }">
                                             <span class="text-xs text-gray-500" x-text="formatTime(message.created_at)"></span>
@@ -176,11 +176,11 @@
                                     <input type="file" class="hidden" @change="handleFileSelect($event)">
                                 </label>
                             </div>
-                            
+
                             <!-- Message Input -->
                             <div class="flex-1">
                                 <div class="relative">
-                                    <textarea x-model="newMessage" 
+                                    <textarea x-model="newMessage"
                                               @keydown.enter.prevent="!$event.shiftKey && sendMessage()"
                                               placeholder="Type your message... (Shift+Enter for new line)"
                                               rows="1"
@@ -188,7 +188,7 @@
                                               :disabled="sending"
                                               style="min-height: 50px; max-height: 120px;"></textarea>
                                 </div>
-                                
+
                                 <!-- File Preview -->
                                 <div x-show="selectedFile" class="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                                     <div class="flex items-center justify-between">
@@ -206,10 +206,10 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Send Button -->
                             <div class="flex-shrink-0">
-                                <button type="submit" 
+                                <button type="submit"
                                         class="p-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
                                         :disabled="(!newMessage.trim() && !selectedFile) || sending">
                                     <svg x-show="!sending" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -221,7 +221,7 @@
                                 </button>
                             </div>
                         </form>
-                        
+
                         <!-- Typing Indicator -->
                         <div x-show="sending" class="mt-2 text-sm text-gray-500 flex items-center">
                             <div class="flex space-x-1 mr-2">
@@ -253,13 +253,13 @@ document.addEventListener('alpine:init', () => {
         supportUserId: null,
         currentChatId: null,
         pollingInterval: null,
-        
+
         init() {
             this.loadUnreadCount();
             this.findSupportUser();
             this.startPolling();
         },
-        
+
         // IDENTICAL to floating widget
         async findSupportUser() {
             try {
@@ -272,11 +272,11 @@ document.addEventListener('alpine:init', () => {
                     throw new Error('Invalid response format');
                 }
                 const data = await response.json();
-                
+
                 if (data.success && data.users.length > 0) {
                     // Find first admin user
                     const supportUser = data.users.find(user => user.is_admin);
-                    
+
                     if (supportUser) {
                         this.supportUserId = supportUser.id;
                         this.findOrCreateChat();
@@ -288,7 +288,7 @@ document.addEventListener('alpine:init', () => {
                 this.isOpen = false;
             }
         },
-        
+
         // IDENTICAL to floating widget
         async findOrCreateChat() {
             try {
@@ -303,14 +303,14 @@ document.addEventListener('alpine:init', () => {
                         return;
                     }
                 }
-                
+
                 // If no existing chat, create a new one
                 await this.createNewChat();
             } catch (error) {
                 console.error('Error finding or creating chat:', error);
             }
         },
-        
+
         // IDENTICAL to floating widget
         async createNewChat() {
             try {
@@ -325,7 +325,7 @@ document.addEventListener('alpine:init', () => {
                         topic: 'General Support'
                     })
                 });
-                
+
                 const data = await response.json();
                 if (data.success) {
                     this.currentChatId = data.chat_id;
@@ -335,11 +335,11 @@ document.addEventListener('alpine:init', () => {
                 console.error('Error creating new chat:', error);
             }
         },
-        
+
         // IDENTICAL to floating widget
         async loadMessages() {
             if (!this.currentChatId) return;
-            
+
             try {
                 const response = await fetch(`{{ route('chat.messages', ['chat_id' => '__CHAT_ID__']) }}`.replace('__CHAT_ID__', this.currentChatId));
                 if (!response.ok) {
@@ -350,7 +350,7 @@ document.addEventListener('alpine:init', () => {
                     throw new Error('Invalid response format');
                 }
                 const data = await response.json();
-                
+
                 if (data.success) {
                     this.messages = data.messages;
                     this.scrollToBottom();
@@ -359,23 +359,23 @@ document.addEventListener('alpine:init', () => {
                 console.error('Error loading messages:', error);
             }
         },
-        
+
         // IDENTICAL to floating widget
         async sendMessage() {
             if (!this.newMessage.trim() && !this.selectedFile) return;
             if (!this.currentChatId) return;
-            
+
             this.sending = true;
-            
+
             try {
                 const formData = new FormData();
                 formData.append('chat_id', this.currentChatId);
                 formData.append('message', this.newMessage);
-                
+
                 if (this.selectedFile) {
                     formData.append('file', this.selectedFile);
                 }
-                
+
                 const response = await fetch('{{ route("chat.send") }}', {
                     method: 'POST',
                     headers: {
@@ -383,9 +383,9 @@ document.addEventListener('alpine:init', () => {
                     },
                     body: formData
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (data.success) {
                     this.messages.push(data.message);
                     this.newMessage = '';
@@ -399,11 +399,11 @@ document.addEventListener('alpine:init', () => {
                 this.sending = false;
             }
         },
-        
+
         // IDENTICAL to floating widget
         async markAsRead() {
             if (!this.currentChatId) return;
-            
+
             try {
                 await fetch('{{ route("chat.mark-read") }}', {
                     method: 'POST',
@@ -413,13 +413,13 @@ document.addEventListener('alpine:init', () => {
                     },
                     body: JSON.stringify({ chat_id: this.currentChatId })
                 });
-                
+
                 this.unreadCount = 0;
             } catch (error) {
                 console.error('Error marking messages as read:', error);
             }
         },
-        
+
         // IDENTICAL to floating widget
         startPolling() {
             // Poll for new messages every 3 seconds
@@ -430,7 +430,7 @@ document.addEventListener('alpine:init', () => {
                 this.loadUnreadCount();
             }, 3000);
         },
-        
+
         // IDENTICAL to floating widget
         stopPolling() {
             if (this.pollingInterval) {
@@ -438,7 +438,7 @@ document.addEventListener('alpine:init', () => {
                 this.pollingInterval = null;
             }
         },
-        
+
         // IDENTICAL to floating widget
         handleFileSelect(event) {
             const file = event.target.files[0];
@@ -451,7 +451,7 @@ document.addEventListener('alpine:init', () => {
                 this.selectedFile = file;
             }
         },
-        
+
         // IDENTICAL to floating widget
         async loadUnreadCount() {
             try {
@@ -464,7 +464,7 @@ document.addEventListener('alpine:init', () => {
                     throw new Error('Invalid response format');
                 }
                 const data = await response.json();
-                
+
                 if (data.success) {
                     this.unreadCount = data.count;
                 }
@@ -472,7 +472,7 @@ document.addEventListener('alpine:init', () => {
                 console.error('Error loading unread count:', error);
             }
         },
-        
+
         scrollToBottom() {
             this.$nextTick(() => {
                 const container = document.getElementById('full-chat-messages');
@@ -481,19 +481,19 @@ document.addEventListener('alpine:init', () => {
                 }
             });
         },
-        
+
         // IDENTICAL to floating widget
         formatTime(timestamp) {
             const date = new Date(timestamp);
             const now = new Date();
             const diff = now - date;
-            
+
             if (diff < 60000) return 'Just now';
             if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
             if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
             return date.toLocaleDateString();
         },
-        
+
         // IDENTICAL to floating widget - Cleanup when component is destroyed
         destroy() {
             this.stopPolling();
