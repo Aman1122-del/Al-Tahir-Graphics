@@ -241,50 +241,43 @@
 
                 <div class="grid md:grid-cols-3 gap-8">
                     @php
-                        $testimonials = [
-                            [
-                                'name' => 'Sarah Ahmed',
-                                'role' => 'Bride',
-                                'rating' => 5,
-                                'text' =>
-                                    'The wedding cards were absolutely beautiful! The quality exceeded our expectations and the delivery was right on time.',
-                            ],
-                            [
-                                'name' => 'Muhammad Ali',
-                                'role' => 'Business Owner',
-                                'rating' => 5,
-                                'text' =>
-                                    'Professional business cards that really impressed our clients. Great quality and excellent customer service.',
-                            ],
-                            [
-                                'name' => 'Fatima Khan',
-                                'role' => 'Event Planner',
-                                'rating' => 5,
-                                'text' =>
-                                    'Al-Tahir Graphics is our go-to for all printing needs. Consistent quality and reliable service every time.',
-                            ],
-                        ];
+                        // Fetch latest 3 approved reviews
+                        $reviews = App\Models\Review::with(['user', 'service'])
+                            ->where('is_approved', true) // Only show approved reviews
+                            ->latest()
+                            ->take(3)
+                            ->get();
                     @endphp
-                    @foreach ($testimonials as $index => $testimonial)
-                        <div class="bg-gray-50 rounded-2xl p-6 hover:bg-gray-100 transition-colors duration-300"
-                            data-aos="fade-up" data-aos-delay="{{ $index * 100 }}">
-                            <div class="flex items-center mb-4">
-                                @for ($i = 1; $i <= 5; $i++)
-                                    <svg class="h-5 w-5 {{ $i <= $testimonial['rating'] ? 'text-yellow-400' : 'text-gray-300' }}"
-                                        fill="currentColor" viewBox="0 0 20 20">
-                                        <path
-                                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z">
-                                        </path>
-                                    </svg>
-                                @endfor
+
+                    @if($reviews->count() > 0)
+                        @foreach ($reviews as $index => $review)
+                            <div class="bg-gray-50 rounded-2xl p-6 hover:bg-gray-100 transition-colors duration-300"
+                                data-aos="fade-up" data-aos-delay="{{ $index * 100 }}">
+                                <div class="flex items-center mb-4">
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        <svg class="h-5 w-5 {{ $i <= $review->rating ? 'text-yellow-400' : 'text-gray-300' }}"
+                                            fill="currentColor" viewBox="0 0 20 20">
+                                            <path
+                                                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z">
+                                            </path>
+                                        </svg>
+                                    @endfor
+                                </div>
+                                <p class="text-gray-700 mb-4 italic">"{{ $review->comment ?? 'No comment provided.' }}"</p>
+                                <div>
+                                    <div class="font-semibold text-gray-900">{{ $review->user->name }}</div>
+                                    <div class="text-sm text-gray-600">
+                                        {{ $review->service ? $review->service->title : 'Verified Customer' }}
+                                    </div>
+                                </div>
                             </div>
-                            <p class="text-gray-700 mb-4 italic">"{{ $testimonial['text'] }}"</p>
-                            <div>
-                                <div class="font-semibold text-gray-900">{{ $testimonial['name'] }}</div>
-                                <div class="text-sm text-gray-600">{{ $testimonial['role'] }}</div>
-                            </div>
+                        @endforeach
+                    @else
+                        <!-- Fallback content if no reviews yet -->
+                        <div class="col-span-3 text-center py-8">
+                            <p class="text-gray-500 italic">No reviews yet. Be the first to leave one!</p>
                         </div>
-                    @endforeach
+                    @endif
                 </div>
             </div>
         </section>

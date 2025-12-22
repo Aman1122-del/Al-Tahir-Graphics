@@ -83,6 +83,10 @@ Route::middleware('auth')->group(function () {
     // Return/Cancellation routes
     Route::resource('returns', App\Http\Controllers\ReturnRequestController::class)->except(['edit', 'update', 'destroy']);
     Route::get('/returns/create', [App\Http\Controllers\ReturnRequestController::class, 'create'])->name('returns.create');
+
+    // Review routes
+    Route::get('/orders/{order}/review', [App\Http\Controllers\ReviewController::class, 'create'])->name('reviews.create');
+    Route::post('/orders/{order}/review', [App\Http\Controllers\ReviewController::class, 'store'])->name('reviews.store');
 });
 
 // Include route files

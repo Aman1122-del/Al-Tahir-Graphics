@@ -109,6 +109,11 @@ class Service extends Model
         return $this->hasMany(ServiceSample::class)->orderBy('sort_order');
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class, 'service_id');
+    }
+
     /**
      * Get samples grouped by sub-category
      */

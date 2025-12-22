@@ -90,6 +90,11 @@ class Order extends Model
         return $this->hasMany(ReturnRequest::class);
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
     /**
      * Get formatted total amount.
      */

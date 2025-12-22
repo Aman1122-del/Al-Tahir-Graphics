@@ -54,6 +54,7 @@
                                     <p class="font-medium text-slate-900">{{ $order->order_number }}</p>
                                     <p class="text-sm text-slate-500">{{ $order->created_at->format('M d, Y') }}</p>
                                 </div>
+                            <div class="flex items-center space-x-4">
                                 <span class="px-2 py-1 text-xs font-medium rounded-full
                                     @if($order->order_status === 'pending') bg-yellow-100 text-yellow-800
                                     @elseif($order->order_status === 'processing') bg-blue-100 text-blue-800
@@ -62,7 +63,15 @@
                                     @endif">
                                     {{ ucfirst(str_replace('_', ' ', $order->order_status)) }}
                                 </span>
+                                
+                                @if($order->order_status === 'completed' && !$order->reviews()->exists())
+                                    <a href="{{ route('reviews.create', $order) }}" 
+                                       class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-[--color-brand-blue] hover:bg-[--color-brand-orange] transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                        Review
+                                    </a>
+                                @endif
                             </div>
+                        </div>
                         @endforeach
                     </div>
                     <div class="mt-4">

@@ -114,4 +114,8 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     // Chat Settings
     Route::get('chat-settings', [ChatSettingsController::class, 'edit'])->name('chat.settings');
     Route::post('chat-settings', [ChatSettingsController::class, 'save'])->name('chat.settings.save');
+
+    // Reviews Management
+    Route::resource('reviews', \App\Http\Controllers\Admin\ReviewController::class)->only(['index', 'destroy']);
+    Route::post('reviews/{review}/approve', [\App\Http\Controllers\Admin\ReviewController::class, 'approve'])->name('reviews.approve');
 });
