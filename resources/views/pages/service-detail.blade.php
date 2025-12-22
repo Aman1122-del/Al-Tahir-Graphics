@@ -34,7 +34,7 @@
 
 @section('content')
     <!-- Breadcrumb -->
-    <nav class="mb-6 text-sm text-slate-600" aria-label="Breadcrumb">
+    <nav class="mb-6 text-sm text-slate-600 p-4" aria-label="Breadcrumb">
         <ol class="flex items-center space-x-2">
             <li><a href="{{ route('home') }}" class="hover:text-[--color-brand-blue] transition-colors">Home</a></li>
             <li><span class="mx-2 text-slate-400">›</span></li>

@@ -38,18 +38,18 @@
                     <div>
                         <h4 class="text-md font-semibold mb-4">Services</h4>
                         <ul class="space-y-2 text-gray-300">
-                            <li><a href="#" class="hover:text-white">Logo Design</a></li>
-                            <li><a href="#" class="hover:text-white">Brand Identity</a></li>
-                            <li><a href="#" class="hover:text-white">Print Design</a></li>
-                            <li><a href="#" class="hover:text-white">Digital Design</a></li>
+                            <li><a href="/services/wedding-cards" class="hover:text-white">Wedding Cards</a></li>
+                            <li><a href="/services/visiting-cards" class="hover:text-white">Visiting Cards</a></li>
+                            <li><a href="/services/flyers" class="hover:text-white">Flyers</a></li>
+                            <li><a href="/services/banners" class="hover:text-white">Banners</a></li>
                         </ul>
                     </div>
                     <div>
-                        <h4 class="text-md font-semibold mb-4">Company</h4>
+                        <h4 class="text-md font-semibold mb-4">Quick Links</h4>
                         <ul class="space-y-2 text-gray-300">
                             <li><a href="{{ route('about') }}" class="hover:text-white">About Us</a></li>
-                            <li><a href="#" class="hover:text-white">Portfolio</a></li>
-                            <li><a href="#" class="hover:text-white">Blog</a></li>
+                            <li><a href="/contact" class="hover:text-white">Contact Us</a></li>
+                            <li><a href="/chat" class="hover:text-white">Chats</a></li>
                         </ul>
                     </div>
                     <div>
