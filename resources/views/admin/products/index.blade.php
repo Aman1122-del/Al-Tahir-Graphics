@@ -16,7 +16,6 @@
                 Add New Product
             </a>
         </div>
-
         <!-- Search and Filter -->
         <div class="bg-white rounded-xl shadow ring-1 ring-black/5 p-6 mb-6">
             <form method="GET" class="grid gap-4 md:grid-cols-4">

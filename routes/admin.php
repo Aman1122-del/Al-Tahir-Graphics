@@ -1,17 +1,17 @@
 <?php
 
-use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\OrderController;
-use App\Http\Controllers\Admin\QuoteController;
-use App\Http\Controllers\Admin\InvoiceController;
-use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\ChatController;
-use App\Http\Controllers\Admin\UnifiedChatController;
 use App\Http\Controllers\Admin\ChatSettingsController;
-use App\Http\Controllers\Admin\ServiceController as AdminServiceController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\InvoiceController;
+use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductsManagementController;
+use App\Http\Controllers\Admin\QuoteController;
+use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\ServiceController as AdminServiceController;
+use App\Http\Controllers\Admin\UnifiedChatController;
+use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
