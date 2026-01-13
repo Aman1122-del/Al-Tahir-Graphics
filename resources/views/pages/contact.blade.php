@@ -24,6 +24,7 @@
                     class="rounded-lg border border-slate-300 px-4 py-3 focus:border-[--color-brand-blue] focus:outline-none"
                     placeholder="Your Name" />
 
+
                 {{-- EMAIL --}}
                 <input
                     type="email"
