@@ -16,7 +16,7 @@
 @section('content')
     <div class="min-h-screen">
         <!-- Hero Section -->
-        <section class="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-orange-50 py-20 lg:py-32">
+        <section class="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-orange-50 py-20 lg:py-20">
             <!-- Background decorative elements -->
             <div class="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-blue-100 opacity-30 blur-3xl"></div>
             <div class="absolute -bottom-16 -left-16 h-80 w-80 rounded-full bg-orange-100 opacity-40 blur-3xl"></div>
@@ -249,7 +249,7 @@
                             ->get();
                     @endphp
 
-                    @if($reviews->count() > 0)
+                    @if ($reviews->count() > 0)
                         @foreach ($reviews as $index => $review)
                             <div class="bg-gray-50 rounded-2xl p-6 hover:bg-gray-100 transition-colors duration-300"
                                 data-aos="fade-up" data-aos-delay="{{ $index * 100 }}">
@@ -263,7 +263,8 @@
                                         </svg>
                                     @endfor
                                 </div>
-                                <p class="text-gray-700 mb-4 italic">"{{ $review->comment ?? 'No comment provided.' }}"</p>
+                                <p class="text-gray-700 mb-4 italic">"{{ $review->comment ?? 'No comment provided.' }}"
+                                </p>
                                 <div>
                                     <div class="font-semibold text-gray-900">{{ $review->user->name }}</div>
                                     <div class="text-sm text-gray-600">
