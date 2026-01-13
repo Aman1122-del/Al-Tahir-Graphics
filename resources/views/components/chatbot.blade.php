@@ -1,4 +1,4 @@
-<div id="chatbot" class="fixed bottom-4 left-4 z-40">
+{{-- <div id="chatbot" class="fixed bottom-4 left-4 z-40">
     <button id="chatToggle" class="btn-primary rounded-full px-4 py-3">Chat</button>
     <div id="chatWindow" class="hidden mt-2 w-80 rounded-2xl bg-white p-3 shadow-2xl ring-1 ring-black/5">
         <div class="flex items-center justify-between">
@@ -41,7 +41,7 @@
             <button class="btn-primary">Send</button>
         </form>
     </div>
-</div>
+</div> --}}
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -82,7 +82,8 @@
                 const res = await fetch('{{ route('chatbot.settings') }}');
                 settings = await res.json();
             } catch (e) {
-                /* ignore */ }
+                /* ignore */
+            }
         }
 
         async function startSession() {
@@ -221,7 +222,8 @@
                         chatAgentOffer.classList.add('hidden');
                     }
                 } catch (e) {
-                    /* ignore */ }
+                    /* ignore */
+                }
             }, 3000);
         }
     });

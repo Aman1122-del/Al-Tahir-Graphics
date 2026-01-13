@@ -63,70 +63,69 @@
                     </div>
                 </div>
 
-                <div class="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-                    @foreach ($services as $idx => $service)
-                        <a href="{{ route('service.show', $service->slug) }}"
-                            class="group relative overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200/80 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:ring-blue-500/30 animate-scale-in product-card block"
-                            style="animation-delay: {{ $idx * 50 }}ms"
-                            data-category="{{ Str::slug($service->category) }}"
-                            aria-label="View {{ $service->title }} details">
+                <div class="mx-auto max-w-6xl px-4">
 
-                            <div class="relative aspect-square overflow-hidden">
-                                <img src="{{ $service->image_path }}" alt="{{ $service->title }}"
-                                    class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-125"
-                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3">
+                        @foreach ($services as $idx => $service)
+                            <a href="{{ route('service.show', $service->slug) }}"
+                                class="group relative overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200/80 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:ring-blue-500/30 animate-scale-in product-card block"
+                                style="animation-delay: {{ $idx * 50 }}ms"
+                                data-category="{{ Str::slug($service->category) }}"
+                                aria-label="View {{ $service->title }} details">
 
-                                <!-- Enhanced Fallback -->
-                                <div
-                                    class="hidden h-full w-full items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
-                                    <div class="text-center p-4">
-                                        <svg class="mx-auto h-8 w-8 text-blue-400 mb-2" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                        <span class="text-xs text-blue-600 font-medium">{{ $service->title }}</span>
+                                <div class="relative aspect-[4/3] overflow-hidden">
+                                    <img src="{{ $service->image_path }}" alt="{{ $service->title }}"
+                                        class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-125"
+                                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+
+                                    <div
+                                        class="hidden h-full w-full items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
+                                        <div class="text-center p-4">
+                                            <svg class="mx-auto h-8 w-8 text-blue-400 mb-2" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                            <span class="text-xs text-blue-600 font-medium">{{ $service->title }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="absolute top-2 left-2 flex flex-col gap-1">
+                                        @if ($service->is_featured)
+                                            <span
+                                                class="rounded-full bg-orange-500 px-2 py-1 text-xs font-bold text-white shadow-lg animate-pulse">Best
+                                                Seller</span>
+                                        @endif
+                                        @if (isset($service->created_at) && $service->created_at && $service->created_at->diffInDays() <= 30)
+                                            <span
+                                                class="rounded-full bg-green-500 px-2 py-1 text-xs font-bold text-white shadow-lg">New</span>
+                                        @endif
+                                    </div>
+
+                                    <div
+                                        class="absolute bottom-2 right-2 rounded-lg bg-white/95 backdrop-blur-sm px-2 py-1 text-xs font-bold text-gray-900 shadow-lg transform group-hover:scale-110 transition-transform duration-300">
+                                        {{ $service->price_display ?: $service->formatted_price }}
+                                    </div>
+
+                                    <div
+                                        class="absolute inset-0 bg-gradient-to-t from-blue-600/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end justify-center pb-4">
+                                        <span
+                                            class="text-white font-medium text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                                            View Details
+                                        </span>
                                     </div>
                                 </div>
 
-                                <!-- Badges -->
-                                <div class="absolute top-2 left-2 flex flex-col gap-1">
-                                    @if ($service->is_featured)
-                                        <span
-                                            class="rounded-full bg-orange-500 px-2 py-1 text-xs font-bold text-white shadow-lg animate-pulse">Best
-                                            Seller</span>
-                                    @endif
-                                    @if (isset($service->created_at) && $service->created_at && $service->created_at->diffInDays() <= 30)
-                                        <span
-                                            class="rounded-full bg-green-500 px-2 py-1 text-xs font-bold text-white shadow-lg">New</span>
-                                    @endif
+                                <div class="p-3">
+                                    <h3
+                                        class="text-sm font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 mb-1">
+                                        {{ $service->title }}
+                                    </h3>
+                                    <p class="text-xs text-gray-500">{{ ucwords($service->category) }}</p>
                                 </div>
-
-                                <!-- Price Badge -->
-                                <div
-                                    class="absolute bottom-2 right-2 rounded-lg bg-white/95 backdrop-blur-sm px-2 py-1 text-xs font-bold text-gray-900 shadow-lg transform group-hover:scale-110 transition-transform duration-300">
-                                    {{ $service->price_display ?: $service->formatted_price }}
-                                </div>
-
-                                <!-- Hover Overlay -->
-                                <div
-                                    class="absolute inset-0 bg-gradient-to-t from-blue-600/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end justify-center pb-4">
-                                    <span
-                                        class="text-white font-medium text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                                        View Details
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="p-3">
-                                <h3
-                                    class="text-sm font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 mb-1">
-                                    {{ $service->title }}
-                                </h3>
-                                <p class="text-xs text-gray-500">{{ ucwords($service->category) }}</p>
-                            </div>
-                        </a>
-                    @endforeach
+                            </a>
+                        @endforeach
+                    </div>
                 </div>
             </div>
 
