@@ -8,11 +8,11 @@
                 <div class="flex justify-between items-center mb-6">
                     <h1 class="text-3xl font-bold">Order Details - {{ $order->order_number }}</h1>
                     <div class="flex space-x-4">
-                        <a href="{{ route('admin.orders.edit', $order) }}" 
+                        <a href="{{ route('admin.orders.edit', $order) }}"
                            class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg">
                             Edit Order
                         </a>
-                        <a href="{{ route('admin.orders.index') }}" 
+                        <a href="{{ route('admin.orders.index') }}"
                            class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg">
                             Back to Orders
                         </a>
@@ -124,6 +124,95 @@
                                         <tr>
                                             <td class="px-4 py-2 border-b border-gray-200 text-sm text-gray-900">
                                                 {{ $item->service->title }}
+                                                @if($item->wedding_details)
+                                                    <div class="mt-2 p-2 bg-blue-50 rounded text-xs">
+                                                        <strong>Wedding Details:</strong><br>
+                                                        Groom: {{ $item->wedding_details['groom'] ?? 'N/A' }} | Bride: {{ $item->wedding_details['bride'] ?? 'N/A' }}<br>
+                                                        @if(isset($item->wedding_details['eventType']) && !empty($item->wedding_details['eventType']))
+                                                            Event: {{ $item->wedding_details['eventType'] }} |
+                                                        @endif
+                                                        @if(isset($item->wedding_details['dateTime']) && !empty($item->wedding_details['dateTime']))
+                                                            Date/Time: {{ $item->wedding_details['dateTime'] }}<br>
+                                                        @endif
+                                                        @if(isset($item->wedding_details['venue']) && !empty($item->wedding_details['venue']))
+                                                            Venue: {{ $item->wedding_details['venue'] }}<br>
+                                                        @endif
+                                                        @if(!empty($item->wedding_details['additionalMessage'] ?? $item->wedding_details['remarks'] ?? ''))
+                                                            Message: {{ $item->wedding_details['additionalMessage'] ?? $item->wedding_details['remarks'] }}
+                                                        @endif
+                                                    </div>
+                                                @endif
+                                                @if($item->visiting_card_details)
+                                                    <div class="mt-2 p-2 bg-green-50 rounded text-xs">
+                                                        <strong>Visiting Card Details:</strong><br>
+                                                        Name: {{ $item->visiting_card_details['businessName'] ?? 'N/A' }}<br>
+                                                        @if(isset($item->visiting_card_details['designation']) && !empty($item->visiting_card_details['designation']))
+                                                            Designation: {{ $item->visiting_card_details['designation'] }}<br>
+                                                        @endif
+                                                        @if(isset($item->visiting_card_details['companyName']) && !empty($item->visiting_card_details['companyName']))
+                                                            Company: {{ $item->visiting_card_details['companyName'] }}<br>
+                                                        @endif
+                                                        Mobile: {{ $item->visiting_card_details['mobileNumber'] ?? 'N/A' }}<br>
+                                                        @if(isset($item->visiting_card_details['whatsappNumber']) && !empty($item->visiting_card_details['whatsappNumber']))
+                                                            WhatsApp: {{ $item->visiting_card_details['whatsappNumber'] }}<br>
+                                                        @endif
+                                                        @if(isset($item->visiting_card_details['emailAddress']) && !empty($item->visiting_card_details['emailAddress']))
+                                                            Email: {{ $item->visiting_card_details['emailAddress'] }}<br>
+                                                        @endif
+                                                        Printing: {{ $item->visiting_card_details['printingSide'] ?? 'N/A' }}<br>
+                                                        @if(isset($item->visiting_card_details['officeAddress']) && !empty($item->visiting_card_details['officeAddress']))
+                                                            Address: {{ $item->visiting_card_details['officeAddress'] }}<br>
+                                                        @endif
+                                                        @if(!empty($item->visiting_card_details['additionalMessage'] ?? ''))
+                                                            Message: {{ $item->visiting_card_details['additionalMessage'] }}
+                                                        @endif
+                                                    </div>
+                                                @endif
+                                                @if($item->panaflex_details)
+                                                    <div class="mt-2 p-2 bg-purple-50 rounded text-xs">
+                                                        <strong>Panaflex Printing Details:</strong><br>
+                                                        Business/Event Name: {{ $item->panaflex_details['businessName'] ?? 'N/A' }}<br>
+                                                        Panaflex Size: {{ $item->panaflex_details['panaflexSize'] ?? 'N/A' }}<br>
+                                                        @if(isset($item->panaflex_details['eventType']) && !empty($item->panaflex_details['eventType']))
+                                                            Event Type: {{ $item->panaflex_details['eventType'] }}<br>
+                                                        @endif
+                                                        Main Heading: {{ $item->panaflex_details['mainHeading'] ?? 'N/A' }}<br>
+                                                        @if(isset($item->panaflex_details['subHeading']) && !empty($item->panaflex_details['subHeading']))
+                                                            Sub Heading: {{ $item->panaflex_details['subHeading'] }}<br>
+                                                        @endif
+                                                        @if(isset($item->panaflex_details['dateTime']) && !empty($item->panaflex_details['dateTime']))
+                                                            Date/Time: {{ $item->panaflex_details['dateTime'] }}<br>
+                                                        @endif
+                                                        Venue/Location: {{ $item->panaflex_details['venue'] ?? 'N/A' }}<br>
+                                                        Contact Number: {{ $item->panaflex_details['contactNumber'] ?? 'N/A' }}<br>
+                                                        @if(!empty($item->panaflex_details['additionalInstructions'] ?? ''))
+                                                            Instructions: {{ $item->panaflex_details['additionalInstructions'] }}
+                                                        @endif
+                                                    </div>
+                                                @endif
+                                                @if($item->flyer_brochure_details)
+                                                    <div class="mt-2 p-2 bg-emerald-50 rounded text-xs">
+                                                        <strong>Flyer/Brochure Details:</strong><br>
+                                                        Business/Brand Name: {{ $item->flyer_brochure_details['businessName'] ?? 'N/A' }}<br>
+                                                        Brochure Type: {{ $item->flyer_brochure_details['brochureType'] ?? 'N/A' }}<br>
+                                                        Paper Type: {{ $item->flyer_brochure_details['paperType'] ?? 'N/A' }}<br>
+                                                        Fold Type: {{ $item->flyer_brochure_details['foldType'] ?? 'N/A' }}<br>
+                                                        Quantity: {{ $item->flyer_brochure_details['quantity'] ?? 'N/A' }}<br>
+                                                        Contact Info: {{ $item->flyer_brochure_details['contactInfo'] ?? 'N/A' }}<br>
+                                                        @if(isset($item->flyer_brochure_details['validityDate']) && !empty($item->flyer_brochure_details['validityDate']))
+                                                            Validity Date: {{ $item->flyer_brochure_details['validityDate'] }}<br>
+                                                        @endif
+                                                        @if(isset($item->flyer_brochure_details['address']) && !empty($item->flyer_brochure_details['address']))
+                                                            Address: {{ $item->flyer_brochure_details['address'] }}<br>
+                                                        @endif
+                                                        @if(isset($item->flyer_brochure_details['offerDetails']) && !empty($item->flyer_brochure_details['offerDetails']))
+                                                            Offer Details: {{ $item->flyer_brochure_details['offerDetails'] }}<br>
+                                                        @endif
+                                                        @if(!empty($item->flyer_brochure_details['additionalMessage'] ?? ''))
+                                                            Message: {{ $item->flyer_brochure_details['additionalMessage'] }}
+                                                        @endif
+                                                    </div>
+                                                @endif
                                             </td>
                                             <td class="px-4 py-2 border-b border-gray-200 text-sm text-gray-900">
                                                 {{ $item->quantity }}
@@ -189,7 +278,7 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Add Note</label>
-                                        <textarea name="note" rows="3" 
+                                        <textarea name="note" rows="3"
                                                   class="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                                   placeholder="Add a note about this order..."></textarea>
                                     </div>
@@ -251,7 +340,7 @@
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Design Notes</label>
-                                        <textarea name="design_notes" rows="3" 
+                                        <textarea name="design_notes" rows="3"
                                                   class="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                                   placeholder="Add design notes...">{{ $order->design_notes }}</textarea>
                                     </div>

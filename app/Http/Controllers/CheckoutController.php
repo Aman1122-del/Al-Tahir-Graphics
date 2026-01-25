@@ -19,7 +19,7 @@ class CheckoutController extends Controller
     public function showCheckout()
     {
         $cartItems = $this->getCartItems();
-        
+
         if ($cartItems->isEmpty()) {
             return redirect()->route('cart.view')->with('error', 'Your cart is empty.');
         }
@@ -47,7 +47,7 @@ class CheckoutController extends Controller
         ]);
 
         $cartItems = $this->getCartItems();
-        
+
         if ($cartItems->isEmpty()) {
             return redirect()->route('cart.view')->with('error', 'Your cart is empty.');
         }
@@ -93,6 +93,10 @@ class CheckoutController extends Controller
                     'unit_price' => $cartItem->unit_price,
                     'total_price' => $cartItem->total_price,
                     'custom_requirements' => $cartItem->custom_requirements,
+                    'wedding_details' => $cartItem->wedding_details,
+                    'visiting_card_details' => $cartItem->visiting_card_details,
+                    'panaflex_details' => $cartItem->panaflex_details,
+                    'flyer_brochure_details' => $cartItem->flyer_brochure_details,
                 ]);
             }
 
@@ -110,7 +114,7 @@ class CheckoutController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             // Delete uploaded file if order creation fails
             if ($paymentScreenshotPath) {
                 Storage::disk('public')->delete($paymentScreenshotPath);

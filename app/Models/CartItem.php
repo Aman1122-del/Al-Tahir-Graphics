@@ -17,13 +17,19 @@ class CartItem extends Model
         'unit_price',
         'custom_requirements',
         'design_preview_path',
-        'wedding_details', // Added this
+        'wedding_details',
+        'visiting_card_details',
+        'panaflex_details',
+        'flyer_brochure_details',
     ];
 
     protected $casts = [
         'quantity' => 'integer',
         'unit_price' => 'decimal:2',
-        'wedding_details' => 'array', // Added this
+        'wedding_details' => 'array',
+        'visiting_card_details' => 'array',
+        'panaflex_details' => 'array',
+        'flyer_brochure_details' => 'array',
     ];
 
     /**

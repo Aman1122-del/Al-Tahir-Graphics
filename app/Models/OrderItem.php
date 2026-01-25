@@ -16,12 +16,20 @@ class OrderItem extends Model
         'unit_price',
         'total_price',
         'custom_requirements',
+        'wedding_details',
+        'visiting_card_details',
+        'panaflex_details',
+        'flyer_brochure_details',
     ];
 
     protected $casts = [
         'quantity' => 'integer',
         'unit_price' => 'decimal:2',
         'total_price' => 'decimal:2',
+        'wedding_details' => 'array',
+        'visiting_card_details' => 'array',
+        'panaflex_details' => 'array',
+        'flyer_brochure_details' => 'array',
     ];
 
     /**

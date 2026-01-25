@@ -37,6 +37,9 @@ class CartController extends Controller
             'unit_price' => 'nullable|numeric|min:0',
             'design_id' => 'nullable|exists:designs,id',
             'wedding_details' => 'nullable|array',
+            'visiting_card_details' => 'nullable|array',
+            'panaflex_details' => 'nullable|array',
+            'flyer_brochure_details' => 'nullable|array',
             // Accept either a URL or a base64 data URL for previews
             'design_preview_url' => ['nullable', function ($attribute, $value, $fail) {
                 if ($value === null) return;
@@ -84,6 +87,10 @@ class CartController extends Controller
             $existingItem->update([
                 'quantity' => $existingItem->quantity + $request->quantity,
                 'custom_requirements' => $request->custom_requirements ?: $existingItem->custom_requirements,
+                'wedding_details' => $request->wedding_details ?: $existingItem->wedding_details,
+                'visiting_card_details' => $request->visiting_card_details ?: $existingItem->visiting_card_details,
+                'panaflex_details' => $request->panaflex_details ?: $existingItem->panaflex_details,
+                'flyer_brochure_details' => $request->flyer_brochure_details ?: $existingItem->flyer_brochure_details,
             ]);
         } else {
             // Create new cart item
@@ -98,6 +105,9 @@ class CartController extends Controller
                 'custom_requirements' => $request->custom_requirements,
                 'design_preview_path' => $this->storePreviewIfProvided($request->design_preview_url),
                 'wedding_details' => $request->wedding_details,
+                'visiting_card_details' => $request->visiting_card_details,
+                'panaflex_details' => $request->panaflex_details,
+                'flyer_brochure_details' => $request->flyer_brochure_details,
             ]);
         }
 

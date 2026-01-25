@@ -58,16 +58,173 @@
                                                 Wedding Card Details</p>
                                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 text-sm">
                                                 <p><span class="text-slate-500">Groom:</span> <span
-                                                        class="font-bold text-slate-800">{{ $item->wedding_details['groom'] }}</span>
+                                                        class="font-bold text-slate-800">{{ $item->wedding_details['groom'] ?? 'N/A' }}</span>
                                                 </p>
                                                 <p><span class="text-slate-500">Bride:</span> <span
-                                                        class="font-bold text-slate-800">{{ $item->wedding_details['bride'] }}</span>
+                                                        class="font-bold text-slate-800">{{ $item->wedding_details['bride'] ?? 'N/A' }}</span>
                                                 </p>
+                                                @if(isset($item->wedding_details['eventType']) && !empty($item->wedding_details['eventType']))
+                                                <p><span class="text-slate-500">Event Type:</span> <span
+                                                        class="font-bold text-slate-800">{{ $item->wedding_details['eventType'] }}</span>
+                                                </p>
+                                                @endif
+                                                @if(isset($item->wedding_details['dateTime']) && !empty($item->wedding_details['dateTime']))
+                                                <p><span class="text-slate-500">Date & Time:</span> <span
+                                                        class="font-bold text-slate-800">{{ $item->wedding_details['dateTime'] }}</span>
+                                                </p>
+                                                @endif
+                                                @if(isset($item->wedding_details['venue']) && !empty($item->wedding_details['venue']))
+                                                <p><span class="text-slate-500">Venue:</span> <span
+                                                        class="font-bold text-slate-800">{{ $item->wedding_details['venue'] }}</span>
+                                                </p>
+                                                @endif
                                             </div>
-                                            @if (!empty($item->wedding_details['remarks']))
+                                            @if (!empty($item->wedding_details['additionalMessage'] ?? $item->wedding_details['remarks'] ?? ''))
                                                 <p
                                                     class="mt-1 text-sm italic text-slate-600 border-t border-blue-100 pt-1 mt-1">
-                                                    "{{ $item->wedding_details['remarks'] }}"
+                                                    "{{ $item->wedding_details['additionalMessage'] ?? $item->wedding_details['remarks'] }}"
+                                                </p>
+                                            @endif
+                                        </div>
+                                    @endif
+                                    {{-- --- Visiting Card Details Display --- --}}
+                                    @if ($item->visiting_card_details)
+                                        <div class="mt-3 p-3 bg-green-50/50 rounded-lg border border-green-100">
+                                            <p class="text-[10px] font-bold text-green-600 uppercase tracking-widest mb-1">
+                                                Visiting Card Details</p>
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 text-sm">
+                                                <p><span class="text-slate-500">Name:</span> <span
+                                                        class="font-bold text-slate-800">{{ $item->visiting_card_details['businessName'] ?? 'N/A' }}</span>
+                                                </p>
+                                                @if(isset($item->visiting_card_details['designation']) && !empty($item->visiting_card_details['designation']))
+                                                <p><span class="text-slate-500">Designation:</span> <span
+                                                        class="font-bold text-slate-800">{{ $item->visiting_card_details['designation'] }}</span>
+                                                </p>
+                                                @endif
+                                                @if(isset($item->visiting_card_details['companyName']) && !empty($item->visiting_card_details['companyName']))
+                                                <p><span class="text-slate-500">Company:</span> <span
+                                                        class="font-bold text-slate-800">{{ $item->visiting_card_details['companyName'] }}</span>
+                                                </p>
+                                                @endif
+                                                <p><span class="text-slate-500">Mobile:</span> <span
+                                                        class="font-bold text-slate-800">{{ $item->visiting_card_details['mobileNumber'] ?? 'N/A' }}</span>
+                                                </p>
+                                                @if(isset($item->visiting_card_details['whatsappNumber']) && !empty($item->visiting_card_details['whatsappNumber']))
+                                                <p><span class="text-slate-500">WhatsApp:</span> <span
+                                                        class="font-bold text-slate-800">{{ $item->visiting_card_details['whatsappNumber'] }}</span>
+                                                </p>
+                                                @endif
+                                                @if(isset($item->visiting_card_details['emailAddress']) && !empty($item->visiting_card_details['emailAddress']))
+                                                <p><span class="text-slate-500">Email:</span> <span
+                                                        class="font-bold text-slate-800">{{ $item->visiting_card_details['emailAddress'] }}</span>
+                                                </p>
+                                                @endif
+                                                <p><span class="text-slate-500">Printing:</span> <span
+                                                        class="font-bold text-slate-800">{{ $item->visiting_card_details['printingSide'] ?? 'N/A' }}</span>
+                                                </p>
+                                            </div>
+                                            @if(isset($item->visiting_card_details['officeAddress']) && !empty($item->visiting_card_details['officeAddress']))
+                                                <p class="mt-1 text-sm text-slate-600">
+                                                    <span class="text-slate-500">Address:</span> {{ $item->visiting_card_details['officeAddress'] }}
+                                                </p>
+                                            @endif
+                                            @if (!empty($item->visiting_card_details['additionalMessage'] ?? ''))
+                                                <p
+                                                    class="mt-1 text-sm italic text-slate-600 border-t border-green-100 pt-1 mt-1">
+                                                    "{{ $item->visiting_card_details['additionalMessage'] }}"
+                                                </p>
+                                            @endif
+                                        </div>
+                                    @endif
+                                    {{-- --- Panaflex Details Display --- --}}
+                                    @if ($item->panaflex_details)
+                                        <div class="mt-3 p-3 bg-purple-50/50 rounded-lg border border-purple-100">
+                                            <p class="text-[10px] font-bold text-purple-600 uppercase tracking-widest mb-1">
+                                                Panaflex Printing Details</p>
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 text-sm">
+                                                <p><span class="text-slate-500">Business/Event Name:</span> <span
+                                                        class="font-bold text-slate-800">{{ $item->panaflex_details['businessName'] ?? 'N/A' }}</span>
+                                                </p>
+                                                <p><span class="text-slate-500">Panaflex Size:</span> <span
+                                                        class="font-bold text-slate-800">{{ $item->panaflex_details['panaflexSize'] ?? 'N/A' }}</span>
+                                                </p>
+                                                @if(isset($item->panaflex_details['eventType']) && !empty($item->panaflex_details['eventType']))
+                                                <p><span class="text-slate-500">Event Type:</span> <span
+                                                        class="font-bold text-slate-800">{{ $item->panaflex_details['eventType'] }}</span>
+                                                </p>
+                                                @endif
+                                                <p><span class="text-slate-500">Main Heading:</span> <span
+                                                        class="font-bold text-slate-800">{{ $item->panaflex_details['mainHeading'] ?? 'N/A' }}</span>
+                                                </p>
+                                                @if(isset($item->panaflex_details['subHeading']) && !empty($item->panaflex_details['subHeading']))
+                                                <p><span class="text-slate-500">Sub Heading:</span> <span
+                                                        class="font-bold text-slate-800">{{ $item->panaflex_details['subHeading'] }}</span>
+                                                </p>
+                                                @endif
+                                                @if(isset($item->panaflex_details['dateTime']) && !empty($item->panaflex_details['dateTime']))
+                                                <p><span class="text-slate-500">Date & Time:</span> <span
+                                                        class="font-bold text-slate-800">{{ $item->panaflex_details['dateTime'] }}</span>
+                                                </p>
+                                                @endif
+                                                <p><span class="text-slate-500">Venue/Location:</span> <span
+                                                        class="font-bold text-slate-800">{{ $item->panaflex_details['venue'] ?? 'N/A' }}</span>
+                                                </p>
+                                                <p><span class="text-slate-500">Contact Number:</span> <span
+                                                        class="font-bold text-slate-800">{{ $item->panaflex_details['contactNumber'] ?? 'N/A' }}</span>
+                                                </p>
+                                            </div>
+                                            @if (!empty($item->panaflex_details['additionalInstructions'] ?? ''))
+                                                <p
+                                                    class="mt-1 text-sm italic text-slate-600 border-t border-purple-100 pt-1 mt-1">
+                                                    "{{ $item->panaflex_details['additionalInstructions'] }}"
+                                                </p>
+                                            @endif
+                                        </div>
+                                    @endif
+                                    {{-- --- Flyer/Brochure Details Display --- --}}
+                                    @if ($item->flyer_brochure_details)
+                                        <div class="mt-3 p-3 bg-emerald-50/50 rounded-lg border border-emerald-100">
+                                            <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-1">
+                                                Flyer/Brochure Details</p>
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 text-sm">
+                                                <p><span class="text-slate-500">Business/Brand Name:</span> <span
+                                                        class="font-bold text-slate-800">{{ $item->flyer_brochure_details['businessName'] ?? 'N/A' }}</span>
+                                                </p>
+                                                <p><span class="text-slate-500">Brochure Type:</span> <span
+                                                        class="font-bold text-slate-800">{{ $item->flyer_brochure_details['brochureType'] ?? 'N/A' }}</span>
+                                                </p>
+                                                <p><span class="text-slate-500">Paper Type:</span> <span
+                                                        class="font-bold text-slate-800">{{ $item->flyer_brochure_details['paperType'] ?? 'N/A' }}</span>
+                                                </p>
+                                                <p><span class="text-slate-500">Fold Type:</span> <span
+                                                        class="font-bold text-slate-800">{{ $item->flyer_brochure_details['foldType'] ?? 'N/A' }}</span>
+                                                </p>
+                                                <p><span class="text-slate-500">Quantity:</span> <span
+                                                        class="font-bold text-slate-800">{{ $item->flyer_brochure_details['quantity'] ?? 'N/A' }}</span>
+                                                </p>
+                                                <p><span class="text-slate-500">Contact Info:</span> <span
+                                                        class="font-bold text-slate-800">{{ $item->flyer_brochure_details['contactInfo'] ?? 'N/A' }}</span>
+                                                </p>
+                                                @if(isset($item->flyer_brochure_details['validityDate']) && !empty($item->flyer_brochure_details['validityDate']))
+                                                <p><span class="text-slate-500">Validity Date:</span> <span
+                                                        class="font-bold text-slate-800">{{ $item->flyer_brochure_details['validityDate'] }}</span>
+                                                </p>
+                                                @endif
+                                            </div>
+                                            @if(isset($item->flyer_brochure_details['address']) && !empty($item->flyer_brochure_details['address']))
+                                                <p class="mt-1 text-sm text-slate-600">
+                                                    <span class="text-slate-500">Address:</span> {{ $item->flyer_brochure_details['address'] }}
+                                                </p>
+                                            @endif
+                                            @if(isset($item->flyer_brochure_details['offerDetails']) && !empty($item->flyer_brochure_details['offerDetails']))
+                                                <p class="mt-1 text-sm text-slate-600">
+                                                    <span class="text-slate-500">Offer Details:</span> {{ $item->flyer_brochure_details['offerDetails'] }}
+                                                </p>
+                                            @endif
+                                            @if (!empty($item->flyer_brochure_details['additionalMessage'] ?? ''))
+                                                <p
+                                                    class="mt-1 text-sm italic text-slate-600 border-t border-emerald-100 pt-1 mt-1">
+                                                    "{{ $item->flyer_brochure_details['additionalMessage'] }}"
                                                 </p>
                                             @endif
                                         </div>

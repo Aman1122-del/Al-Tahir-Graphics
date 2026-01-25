@@ -140,7 +140,7 @@
 
         <div x-show="showWeddingModal"
             class="fixed inset-0 z-[6000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" x-cloak>
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto"
                 @click.away="showWeddingModal = false">
                 <div
                     style="padding: 1.5rem !important; background-color: #001e3c !important; color: #ffffff !important; display: block !important; border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
@@ -155,21 +155,251 @@
                 </div>
                 <div class="p-6 space-y-4">
                     <div>
-                        <label class="block text-sm font-semibold text-slate-700">Groom's Name</label>
+                        <label class="block text-sm font-semibold text-slate-700">Groom Name</label>
                         <input type="text" x-model="weddingData.groom" class="mt-1 w-full rounded-lg border-slate-300">
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-slate-700">Bride's Name</label>
+                        <label class="block text-sm font-semibold text-slate-700">Bride Name</label>
                         <input type="text" x-model="weddingData.bride" class="mt-1 w-full rounded-lg border-slate-300">
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-slate-700">Other Details(Address,Design,Timing etc)</label>
-                        <textarea x-model="weddingData.remarks" rows="2" class="mt-1 w-full rounded-lg border-slate-300"></textarea>
+                        <label class="block text-sm font-semibold text-slate-700">Event Type</label>
+                        <select x-model="weddingData.eventType" class="mt-1 w-full rounded-lg border-slate-300">
+                            <option value="">Select Event Type</option>
+                            <option value="Nikah">Nikah</option>
+                            <option value="Barat">Barat</option>
+                            <option value="Walima">Walima</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Date & Time</label>
+                        <input type="datetime-local" x-model="weddingData.dateTime" class="mt-1 w-full rounded-lg border-slate-300">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Venue / Address</label>
+                        <input type="text" x-model="weddingData.venue" class="mt-1 w-full rounded-lg border-slate-300">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Additional Message (Optional)</label>
+                        <textarea x-model="weddingData.additionalMessage" rows="2" class="mt-1 w-full rounded-lg border-slate-300"></textarea>
                     </div>
                 </div>
                 <div class="p-6 bg-slate-50 flex gap-3">
                     <button @click="showWeddingModal = false" class="flex-1 px-4 py-2 border rounded-lg">Cancel</button>
                     <button @click="confirmWeddingAddToCart()" class="flex-1 btn-primary">Confirm & Add</button>
+                </div>
+            </div>
+        </div>
+
+        <div x-show="showVisitingCardModal"
+            class="fixed inset-0 z-[6000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" x-cloak>
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto"
+                @click.away="showVisitingCardModal = false">
+                <div
+                    style="padding: 1.5rem !important; background-color: #001e3c !important; color: #ffffff !important; display: block !important; border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
+                    <h3
+                        style="font-size: 1.25rem !important; font-weight: 700 !important; color: #ffffff !important; margin: 0 !important; line-height: 1.75rem !important;">
+                        Visiting Card Details
+                    </h3>
+                    <p
+                        style="font-size: 0.875rem !important; color: rgba(255, 255, 255, 0.8) !important; margin-top: 0.25rem !important; margin-bottom: 0 !important;">
+                        Provide details for the Visiting Card
+                    </p>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Business / Person Name</label>
+                        <input type="text" x-model="visitingCardData.businessName" class="mt-1 w-full rounded-lg border-slate-300">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Designation (Optional)</label>
+                        <input type="text" x-model="visitingCardData.designation" class="mt-1 w-full rounded-lg border-slate-300">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Company Name (Optional)</label>
+                        <input type="text" x-model="visitingCardData.companyName" class="mt-1 w-full rounded-lg border-slate-300">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Mobile Number</label>
+                        <input type="tel" x-model="visitingCardData.mobileNumber" class="mt-1 w-full rounded-lg border-slate-300">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">WhatsApp Number (Optional)</label>
+                        <input type="tel" x-model="visitingCardData.whatsappNumber" class="mt-1 w-full rounded-lg border-slate-300">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Email Address (Optional)</label>
+                        <input type="email" x-model="visitingCardData.emailAddress" class="mt-1 w-full rounded-lg border-slate-300">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Office Address</label>
+                        <textarea x-model="visitingCardData.officeAddress" rows="2" class="mt-1 w-full rounded-lg border-slate-300"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Printing Side</label>
+                        <select x-model="visitingCardData.printingSide" class="mt-1 w-full rounded-lg border-slate-300">
+                            <option value="">Select Printing Side</option>
+                            <option value="Single">Single</option>
+                            <option value="Double">Double</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Additional Message (Optional)</label>
+                        <textarea x-model="visitingCardData.additionalMessage" rows="2" class="mt-1 w-full rounded-lg border-slate-300"></textarea>
+                    </div>
+                </div>
+                <div class="p-6 bg-slate-50 flex gap-3">
+                    <button @click="showVisitingCardModal = false" class="flex-1 px-4 py-2 border rounded-lg">Cancel</button>
+                    <button @click="confirmVisitingCardAddToCart()" class="flex-1 btn-primary">Confirm & Add</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panaflex Modal -->
+        <div x-show="showPanaflexModal"
+            class="fixed inset-0 z-[6000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" x-cloak>
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto"
+                @click.away="showPanaflexModal = false">
+                <div
+                    style="padding: 1.5rem !important; background-color: #7c3aed !important; color: #ffffff !important; display: block !important; border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
+                    <h3 class="text-lg font-bold">Panaflex Details</h3>
+                    <p class="text-sm opacity-90 mt-1">Provide details for the Panaflex Printing</p>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Business/Event Name</label>
+                        <input type="text" x-model="panaflexData.businessName" class="mt-1 w-full rounded-lg border-slate-300">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Panaflex Size</label>
+                        <select x-model="panaflexData.panaflexSize" class="mt-1 w-full rounded-lg border-slate-300">
+                            <option value="">Select Size</option>
+                            <option value="2x4 ft">2x4 ft</option>
+                            <option value="3x6 ft">3x6 ft</option>
+                            <option value="4x8 ft">4x8 ft</option>
+                            <option value="5x10 ft">5x10 ft</option>
+                            <option value="6x12 ft">6x12 ft</option>
+                            <option value="Custom">Custom Size</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Event Type/Purpose (Optional)</label>
+                        <select x-model="panaflexData.eventType" class="mt-1 w-full rounded-lg border-slate-300">
+                            <option value="">Select Event Type</option>
+                            <option value="Wedding">Wedding</option>
+                            <option value="Birthday">Birthday</option>
+                            <option value="Corporate Event">Corporate Event</option>
+                            <option value="Political Campaign">Political Campaign</option>
+                            <option value="Product Launch">Product Launch</option>
+                            <option value="Store Opening">Store Opening</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Main Heading Text</label>
+                        <input type="text" x-model="panaflexData.mainHeading" class="mt-1 w-full rounded-lg border-slate-300">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Sub Heading Text (Optional)</label>
+                        <input type="text" x-model="panaflexData.subHeading" class="mt-1 w-full rounded-lg border-slate-300">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Date & Time (Optional)</label>
+                        <input type="datetime-local" x-model="panaflexData.dateTime" class="mt-1 w-full rounded-lg border-slate-300">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Venue/Location</label>
+                        <input type="text" x-model="panaflexData.venue" class="mt-1 w-full rounded-lg border-slate-300">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Contact Number</label>
+                        <input type="tel" x-model="panaflexData.contactNumber" class="mt-1 w-full rounded-lg border-slate-300">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Design Upload (Optional)</label>
+                        <input type="file" x-ref="panaflexDesignFile" accept="image/*,.pdf,.doc,.docx" class="mt-1 w-full rounded-lg border-slate-300">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Additional Instructions (Optional)</label>
+                        <textarea x-model="panaflexData.additionalInstructions" rows="3" class="mt-1 w-full rounded-lg border-slate-300"></textarea>
+                    </div>
+                </div>
+                <div class="p-6 bg-slate-50 flex gap-3">
+                    <button @click="showPanaflexModal = false" class="flex-1 px-4 py-2 border rounded-lg">Cancel</button>
+                    <button @click="confirmPanaflexAddToCart()" class="flex-1 btn-primary">Confirm & Add</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flyer/Brochure Modal -->
+        <div x-show="showFlyerBrochureModal"
+            class="fixed inset-0 z-[6000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" x-cloak>
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto"
+                @click.away="showFlyerBrochureModal = false">
+                <div
+                    style="padding: 1.5rem !important; background-color: #059669 !important; color: #ffffff !important; display: block !important; border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
+                    <h3 class="text-lg font-bold">Flyer/Brochure Details</h3>
+                    <p class="text-sm opacity-90 mt-1">Provide details for the Flyer/Brochure Printing</p>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Business / Brand Name</label>
+                        <input type="text" x-model="flyerBrochureData.businessName" class="mt-1 w-full rounded-lg border-slate-300">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Brochure Type</label>
+                        <select x-model="flyerBrochureData.brochureType" class="mt-1 w-full rounded-lg border-slate-300">
+                            <option value="">Select Type</option>
+                            <option value="Brochure">Brochure</option>
+                            <option value="Voucher">Voucher</option>
+                            <option value="Flyer">Flyer</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Offer Details / Content</label>
+                        <textarea x-model="flyerBrochureData.offerDetails" rows="3" class="mt-1 w-full rounded-lg border-slate-300"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Validity Date (Optional)</label>
+                        <input type="date" x-model="flyerBrochureData.validityDate" class="mt-1 w-full rounded-lg border-slate-300">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Contact Information</label>
+                        <input type="tel" x-model="flyerBrochureData.contactInfo" class="mt-1 w-full rounded-lg border-slate-300">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Address</label>
+                        <textarea x-model="flyerBrochureData.address" rows="2" class="mt-1 w-full rounded-lg border-slate-300"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Paper Type</label>
+                        <select x-model="flyerBrochureData.paperType" class="mt-1 w-full rounded-lg border-slate-300">
+                            <option value="">Select Paper Type</option>
+                            <option value="Matt">Matt</option>
+                            <option value="Glossy">Glossy</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Fold Type</label>
+                        <select x-model="flyerBrochureData.foldType" class="mt-1 w-full rounded-lg border-slate-300">
+                            <option value="">Select Fold Type</option>
+                            <option value="Single">Single</option>
+                            <option value="Bi-fold">Bi-fold</option>
+                            <option value="Tri-fold">Tri-fold</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Quantity</label>
+                        <input type="number" x-model="flyerBrochureData.quantity" min="1" class="mt-1 w-full rounded-lg border-slate-300">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700">Additional Message (Optional)</label>
+                        <textarea x-model="flyerBrochureData.additionalMessage" rows="2" class="mt-1 w-full rounded-lg border-slate-300"></textarea>
+                    </div>
+                </div>
+                <div class="p-6 bg-slate-50 flex gap-3">
+                    <button @click="showFlyerBrochureModal = false" class="flex-1 px-4 py-2 border rounded-lg">Cancel</button>
+                    <button @click="confirmFlyerBrochureAddToCart()" class="flex-1 btn-primary">Confirm & Add</button>
                 </div>
             </div>
         </div>
@@ -199,11 +429,51 @@
                 isAddingToCart: {},
                 zoomedImage: null,
                 showWeddingModal: false,
+                showVisitingCardModal: false,
                 pendingSample: null,
                 weddingData: {
                     groom: '',
                     bride: '',
-                    remarks: ''
+                    eventType: '',
+                    dateTime: '',
+                    venue: '',
+                    additionalMessage: ''
+                },
+                visitingCardData: {
+                    businessName: '',
+                    designation: '',
+                    companyName: '',
+                    mobileNumber: '',
+                    whatsappNumber: '',
+                    emailAddress: '',
+                    officeAddress: '',
+                    printingSide: '',
+                    additionalMessage: ''
+                },
+                showPanaflexModal: false,
+                panaflexData: {
+                    businessName: '',
+                    panaflexSize: '',
+                    eventType: '',
+                    mainHeading: '',
+                    subHeading: '',
+                    dateTime: '',
+                    venue: '',
+                    contactNumber: '',
+                    additionalInstructions: ''
+                },
+                showFlyerBrochureModal: false,
+                flyerBrochureData: {
+                    businessName: '',
+                    brochureType: '',
+                    offerDetails: '',
+                    validityDate: '',
+                    contactInfo: '',
+                    address: '',
+                    paperType: '',
+                    foldType: '',
+                    quantity: 1,
+                    additionalMessage: ''
                 },
 
                 initSamples(samples, categories) {
@@ -239,17 +509,36 @@
                 // --- ADD TO CART LOGIC ---
                 async addToCartDirectly(sample) {
                     const serviceTitle = '{{ $service->title }}';
+                    console.log('Service title:', serviceTitle);
+                    console.log('Adding to cart for service:', serviceTitle);
                     if (serviceTitle.toLowerCase().includes('wedding')) {
                         this.pendingSample = sample;
                         this.showWeddingModal = true;
+                        return;
+                    }
+                    if (serviceTitle.toLowerCase().includes('visiting') ||
+                        (serviceTitle.toLowerCase().includes('card') && !serviceTitle.toLowerCase().includes('wedding'))) {
+                        this.pendingSample = sample;
+                        this.showVisitingCardModal = true;
+                        return;
+                    }
+                    if (serviceTitle.toLowerCase().includes('panaflex')) {
+                        this.pendingSample = sample;
+                        this.showPanaflexModal = true;
+                        return;
+                    }
+                    if (serviceTitle.toLowerCase().includes('flyer') || serviceTitle.toLowerCase().includes('brochure')) {
+                        console.log('Triggering flyer/brochure modal for:', serviceTitle);
+                        this.pendingSample = sample;
+                        this.showFlyerBrochureModal = true;
                         return;
                     }
                     await this.executeAddToCart(sample);
                 },
 
                 async confirmWeddingAddToCart() {
-                    if (!this.weddingData.groom || !this.weddingData.bride) {
-                        alert('Please enter Groom and Bride names');
+                    if (!this.weddingData.groom || !this.weddingData.bride || !this.weddingData.eventType || !this.weddingData.dateTime || !this.weddingData.venue) {
+                        alert('Please fill in all required fields: Groom Name, Bride Name, Event Type, Date & Time, and Venue / Address');
                         return;
                     }
                     this.showWeddingModal = false;
@@ -257,11 +546,88 @@
                     this.weddingData = {
                         groom: '',
                         bride: '',
-                        remarks: ''
+                        eventType: '',
+                        dateTime: '',
+                        venue: '',
+                        additionalMessage: ''
                     };
                 },
 
-                async executeAddToCart(sample, weddingDetails = null) {
+                async confirmVisitingCardAddToCart() {
+                    if (!this.visitingCardData.businessName || !this.visitingCardData.mobileNumber || !this.visitingCardData.officeAddress || !this.visitingCardData.printingSide) {
+                        alert('Please fill in all required fields: Business/Person Name, Mobile Number, Office Address, and Printing Side');
+                        return;
+                    }
+
+                    this.showVisitingCardModal = false;
+                    await this.executeAddToCart(this.pendingSample, null, this.visitingCardData);
+
+                    // Reset form
+                    this.visitingCardData = {
+                        businessName: '',
+                        designation: '',
+                        companyName: '',
+                        mobileNumber: '',
+                        whatsappNumber: '',
+                        emailAddress: '',
+                        officeAddress: '',
+                        printingSide: '',
+                        additionalMessage: ''
+                    };
+                },
+
+                async confirmPanaflexAddToCart() {
+                    if (!this.panaflexData.businessName || !this.panaflexData.panaflexSize || !this.panaflexData.mainHeading || !this.panaflexData.venue || !this.panaflexData.contactNumber) {
+                        alert('Please fill in all required fields: Business/Event Name, Panaflex Size, Main Heading, Venue/Location, and Contact Number');
+                        return;
+                    }
+                    this.showPanaflexModal = false;
+                    await this.executeAddToCart(this.pendingSample, null, null, this.panaflexData);
+                    this.panaflexData = {
+                        businessName: '',
+                        panaflexSize: '',
+                        eventType: '',
+                        mainHeading: '',
+                        subHeading: '',
+                        dateTime: '',
+                        venue: '',
+                        contactNumber: '',
+                        additionalInstructions: ''
+                    };
+                },
+
+                async confirmFlyerBrochureAddToCart() {
+                    console.log('Confirm flyer brochure add to cart');
+                    console.log('Form data:', this.flyerBrochureData);
+                    if (!this.flyerBrochureData.businessName || !this.flyerBrochureData.brochureType || !this.flyerBrochureData.offerDetails || !this.flyerBrochureData.contactInfo || !this.flyerBrochureData.address || !this.flyerBrochureData.paperType || !this.flyerBrochureData.foldType || !this.flyerBrochureData.quantity) {
+                        alert('Please fill in all required fields: Business Name, Brochure Type, Offer Details, Contact Information, Address, Paper Type, Fold Type, and Quantity');
+                        return;
+                    }
+                    console.log('Validation passed, adding to cart');
+                    this.showFlyerBrochureModal = false;
+                    await this.executeAddToCart(this.pendingSample, null, null, null, this.flyerBrochureData);
+                    this.flyerBrochureData = {
+                        businessName: '',
+                        brochureType: '',
+                        offerDetails: '',
+                        validityDate: '',
+                        contactInfo: '',
+                        address: '',
+                        paperType: '',
+                        foldType: '',
+                        quantity: 1,
+                        additionalMessage: ''
+                    };
+                },
+
+                async executeAddToCart(sample, weddingDetails = null, visitingCardDetails = null, panaflexDetails = null, flyerBrochureDetails = null) {
+                    console.log('Execute add to cart called with:', {
+                        sample: sample,
+                        weddingDetails: weddingDetails,
+                        visitingCardDetails: visitingCardDetails,
+                        panaflexDetails: panaflexDetails,
+                        flyerBrochureDetails: flyerBrochureDetails
+                    });
                     // If it's a sample, use its ID. If direct order, use null.
                     const sampleId = sample.id || null;
                     if (sampleId) this.isAddingToCart[sampleId] = true;
@@ -276,8 +642,13 @@
                             service_sample_id: sampleId,
                             quantity: quantity,
                             unit_price: sample.unit_price,
-                            wedding_details: weddingDetails
+                            wedding_details: weddingDetails,
+                            visiting_card_details: visitingCardDetails,
+                            panaflex_details: panaflexDetails,
+                            flyer_brochure_details: flyerBrochureDetails
                         };
+
+                        console.log('Sending item to cart:', item);
 
                         const response = await fetch('{{ route('cart.add') }}', {
                             method: 'POST',
@@ -290,12 +661,24 @@
                         });
 
                         const data = await response.json();
-                        if (data.success) {
+                        console.log('Cart response:', data);
+                        if (response.ok && data.success) {
                             this.updateNavbarCount(data.item_count);
                             alert(data.message);
+                        } else {
+                            // Handle errors
+                            if (data.errors) {
+                                const errorMessages = Object.values(data.errors).flat().join('\n');
+                                alert('Validation errors:\n' + errorMessages);
+                            } else if (data.message) {
+                                alert('Error: ' + data.message);
+                            } else {
+                                alert('An error occurred while adding to cart. Please try again.');
+                            }
                         }
                     } catch (e) {
-                        console.error(e);
+                        console.error('Error adding to cart:', e);
+                        alert('An error occurred while adding to cart. Please check the console for details.');
                     } finally {
                         if (sampleId) this.isAddingToCart[sampleId] = false;
                     }
