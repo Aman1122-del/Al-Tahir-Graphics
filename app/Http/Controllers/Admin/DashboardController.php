@@ -67,7 +67,7 @@ class DashboardController extends Controller
                                ->take(5)
                                ->get();
 
-        $services = Service::orderBy('sort_order')->get(['id','title','is_active']);
+        $services = Service::orderBy('sort_order')->get(['id','title','slug','is_active']);
         return view('admin.dashboard', compact('stats', 'recentOrders', 'recentQuotes', 'monthlyRevenue', 'topServices', 'services'));
     }
 
