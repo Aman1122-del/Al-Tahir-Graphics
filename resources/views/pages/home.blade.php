@@ -73,7 +73,7 @@
         </section>
 
         <!-- About Section -->
-        <section class="py-16 bg-white">
+        <!-- <section class="py-16 bg-white">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 <h2 class="text-3xl font-bold text-gray-900 mb-6" data-aos="fade-up">About Al-Tahir Graphics</h2>
                 <p class="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed" data-aos="fade-up" data-aos-delay="100">
@@ -82,7 +82,7 @@
                     technology and premium materials to ensure every project exceeds expectations.
                 </p>
             </div>
-        </section>
+        </section> -->
 
         <!-- Featured Services Section -->
         <section class="py-16 bg-gray-50" id="services">

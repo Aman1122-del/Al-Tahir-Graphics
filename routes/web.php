@@ -37,6 +37,7 @@ Route::post('/cart/sync', function(\Illuminate\Http\Request $request) {
 })->name('cart.sync');
 Route::view('/wedding-cards', 'pages.wedding-cards')->name('wedding.cards');
 Route::view('/about', 'pages.about-us')->name('about');
+Route::view('/terms-and-conditions', 'pages.terms')->name('terms');
 
 use App\Http\Controllers\ContactController;
 

@@ -48,6 +48,7 @@
                         <h4 class="text-md font-semibold mb-4">Quick Links</h4>
                         <ul class="space-y-2 text-gray-300">
                             <li><a href="{{ route('about') }}" class="hover:text-white">About Us</a></li>
+                            <li><a href="{{ route('terms') }}" class="hover:text-white">Terms and Conditions</a></li>
                             <li><a href="/contact" class="hover:text-white">Contact Us</a></li>
                             <li><a href="/chat" class="hover:text-white">Chats</a></li>
                         </ul>
