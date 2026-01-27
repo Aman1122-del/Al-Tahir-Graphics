@@ -5,7 +5,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Header with fade-in animation -->
             <div class="text-center mb-16 animate-fade-in-up">
-                <h1
+                <h1 style="line-height: 2;"
                     class="text-4xl md:text-5xl mb-6 bg-gradient-to-r from-gray-900 to-blue-600 bg-clip-text text-transparent font-bold">
                     Our Printing Services
                 </h1>

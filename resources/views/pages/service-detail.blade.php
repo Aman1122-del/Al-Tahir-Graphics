@@ -138,8 +138,8 @@
             </div>
         @endif
 
-        <div x-show="showWeddingModal"
-            class="fixed inset-0 z-[6000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" x-cloak>
+        <div style="z-index: 100;" x-show="showWeddingModal"
+            class="fixed inset-0  flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" x-cloak>
             <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto"
                 @click.away="showWeddingModal = false">
                 <div
@@ -404,8 +404,8 @@
             </div>
         </div>
 
-        <div x-show="zoomedImage"
-            class="fixed inset-0 z-[5000] flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm" x-cloak
+        <div style="z-index:100" x-show="zoomedImage"
+            class="fixed inset-0  flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm" x-cloak
             @click="closeZoom()">
             <img :src="zoomedImage" class="max-h-[90vh] max-w-[90vw] object-contain rounded-lg shadow-2xl" @click.stop>
         </div>
