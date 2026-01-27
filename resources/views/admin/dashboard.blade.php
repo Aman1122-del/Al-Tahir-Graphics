@@ -64,14 +64,37 @@
                                     <div class="text-xs text-gray-500">ID: {{ $svc->id }}</div>
                                 </div>
                                 <button
-                                    x-data="{ id: {{ $svc->id }}, active: {{ $svc->is_active ? 'true' : 'false' }} }"
-                                    @click="
-                                        fetch('{{ route('admin.services.toggle', ['service' => '__SERVICE_ID__']) }}'.replace('__SERVICE_ID__', id), {
+                                    type="button"
+                                    x-data="{ slug: '{{ $svc->slug }}', active: {{ $svc->is_active ? 'true' : 'false' }} }"
+                                    @click.prevent="
+                                        console.log('Toggling service:', slug);
+                                        fetch('{{ route('admin.services.toggle', ['service' => '__SERVICE_ID__']) }}'.replace('__SERVICE_ID__', slug), {
                                             method: 'POST',
                                             headers: {
-                                                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+                                                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                                                'Accept': 'application/json'
                                             }
-                                        }).then(r=>r.json()).then(d=>{ if(d.success){ active = d.service.is_active }})
+                                        })
+                                        .then(r => {
+                                            if (!r.ok) {
+                                                if (r.status === 403) throw new Error('Unauthorized (403): You do not have permission.');
+                                                if (r.status === 404) throw new Error('Not Found (404): Service route mismatch.');
+                                                throw new Error(`Server Error (${r.status} ${r.statusText})`);
+                                            }
+                                            return r.json();
+                                        })
+                                        .then(d => { 
+                                            console.log('Toggle response:', d);
+                                            if(d.success){ 
+                                                active = d.service.is_active; 
+                                            } else {
+                                                alert('Failed to toggle service status');
+                                            }
+                                        })
+                                        .catch(e => {
+                                            console.error('Toggle error:', e);
+                                            alert('Error toggling service: ' + e.message);
+                                        })
                                     "
                                     class="px-3 py-1 rounded text-white"
                                     :class="active ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-500 hover:bg-gray-600'"

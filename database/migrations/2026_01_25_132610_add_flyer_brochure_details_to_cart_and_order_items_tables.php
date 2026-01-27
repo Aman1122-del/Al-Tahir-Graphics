@@ -12,12 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('cart_items', function (Blueprint $table) {
+            if (!Schema::hasColumn('cart_items', 'panaflex_details')) {
+                $table->json('panaflex_details')->nullable()->after('visiting_card_details');
+            }
             if (!Schema::hasColumn('cart_items', 'flyer_brochure_details')) {
                 $table->json('flyer_brochure_details')->nullable()->after('panaflex_details');
             }
         });
 
         Schema::table('order_items', function (Blueprint $table) {
+            if (!Schema::hasColumn('order_items', 'panaflex_details')) {
+                $table->json('panaflex_details')->nullable()->after('visiting_card_details');
+            }
             if (!Schema::hasColumn('order_items', 'flyer_brochure_details')) {
                 $table->json('flyer_brochure_details')->nullable()->after('panaflex_details');
             }
@@ -33,11 +39,17 @@ return new class extends Migration
             if (Schema::hasColumn('cart_items', 'flyer_brochure_details')) {
                 $table->dropColumn('flyer_brochure_details');
             }
+            if (Schema::hasColumn('cart_items', 'panaflex_details')) {
+                $table->dropColumn('panaflex_details');
+            }
         });
 
         Schema::table('order_items', function (Blueprint $table) {
             if (Schema::hasColumn('order_items', 'flyer_brochure_details')) {
                 $table->dropColumn('flyer_brochure_details');
+            }
+            if (Schema::hasColumn('order_items', 'panaflex_details')) {
+                $table->dropColumn('panaflex_details');
             }
         });
     }

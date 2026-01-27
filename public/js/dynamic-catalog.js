@@ -53,7 +53,7 @@ class DynamicCatalog {
     async toggleStatus(button) {
         const productId = button.dataset.productId;
         const currentStatus = button.dataset.status === 'true';
-        
+
         try {
             button.disabled = true;
             button.innerHTML = '<span class="animate-spin">⟳</span> Updating...';
@@ -86,10 +86,10 @@ class DynamicCatalog {
         const statusBadge = button.closest('tr').querySelector('.status-badge');
         const newStatus = isActive ? 'Active' : 'Inactive';
         const newClass = isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
-        
+
         statusBadge.textContent = newStatus;
         statusBadge.className = `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${newClass}`;
-        
+
         button.dataset.status = isActive;
         button.textContent = isActive ? 'Deactivate' : 'Activate';
     }
@@ -97,7 +97,7 @@ class DynamicCatalog {
     async deleteProduct(button) {
         const productId = button.dataset.productId;
         const productName = button.dataset.productName;
-        
+
         if (!confirm(`Are you sure you want to delete "${productName}"? This will also delete all its samples.`)) {
             return;
         }
@@ -134,7 +134,7 @@ class DynamicCatalog {
         const row = button.closest('tr');
         row.style.transition = 'opacity 0.3s ease';
         row.style.opacity = '0';
-        
+
         setTimeout(() => {
             row.remove();
             this.checkEmptyState();
@@ -144,7 +144,7 @@ class DynamicCatalog {
     checkEmptyState() {
         const tbody = document.querySelector('tbody');
         const rows = tbody.querySelectorAll('tr');
-        
+
         if (rows.length === 0) {
             const emptyRow = document.createElement('tr');
             emptyRow.innerHTML = `
@@ -167,32 +167,41 @@ class DynamicCatalog {
         const formData = new FormData(form);
         const isEdit = form.dataset.action === 'edit';
         const productId = form.dataset.productId;
-        
+
         try {
             const submitButton = form.querySelector('button[type="submit"]');
             const originalText = submitButton.textContent;
             submitButton.disabled = true;
             submitButton.innerHTML = '<span class="animate-spin">⟳</span> Saving...';
 
-            const url = isEdit 
+            const url = isEdit
                 ? `/admin/services/ajax/${productId}/update`
                 : '/admin/services/ajax/store';
-            
+
             const method = isEdit ? 'PUT' : 'POST';
 
             const response = await fetch(url, {
                 method: method,
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json',
                 },
                 body: formData
             });
 
             const data = await response.json();
 
+            if (!response.ok) {
+                if (response.status === 422 && data.errors) {
+                    const errorMessages = Object.values(data.errors).flat().join('\n');
+                    throw new Error(errorMessages);
+                }
+                throw new Error(data.message || 'Failed to save product');
+            }
+
             if (data.success) {
                 this.showNotification(data.message, 'success');
-                
+
                 if (!isEdit) {
                     // Add new product to table
                     this.addProductToTable(data.product);
@@ -206,7 +215,7 @@ class DynamicCatalog {
             }
         } catch (error) {
             console.error('Error saving product:', error);
-            this.showNotification('Failed to save product', 'error');
+            this.showNotification(error.message || 'Failed to save product', 'error');
         } finally {
             const submitButton = form.querySelector('button[type="submit"]');
             submitButton.disabled = false;
@@ -216,6 +225,8 @@ class DynamicCatalog {
 
     addProductToTable(product) {
         const tbody = document.querySelector('tbody');
+        if (!tbody) return;
+
         const emptyRow = tbody.querySelector('td[colspan="6"]');
         if (emptyRow) {
             emptyRow.closest('tr').remove();
@@ -226,6 +237,8 @@ class DynamicCatalog {
     }
 
     updateProductInTable(product) {
+        if (!document.querySelector('tbody')) return;
+
         const row = document.querySelector(`tr[data-product-id="${product.id}"]`);
         if (row) {
             const updatedRow = this.createProductRow(product);
@@ -237,22 +250,22 @@ class DynamicCatalog {
         const row = document.createElement('tr');
         row.dataset.productId = product.id;
         row.className = 'hover:bg-gray-50';
-        
+
         const statusClass = product.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
         const statusText = product.is_active ? 'Active' : 'Inactive';
         const featuredBadge = product.is_featured ? '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">Featured</span>' : '';
-        
+
         row.innerHTML = `
             <td class="px-6 py-4">
                 <div class="flex items-center space-x-3">
-                    ${product.image_path ? 
-                        `<img src="${product.image_path}" alt="${product.title}" class="w-12 h-12 rounded-lg object-cover">` :
-                        `<div class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                    ${product.image_path ?
+                `<img src="${product.image_path}" alt="${product.title}" class="w-12 h-12 rounded-lg object-cover">` :
+                `<div class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
                             <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                             </svg>
                         </div>`
-                    }
+            }
                     <div>
                         <p class="font-medium text-gray-900">${product.title}</p>
                         <p class="text-sm text-gray-500">${product.slug}</p>
@@ -269,17 +282,17 @@ class DynamicCatalog {
                 <div class="text-sm text-gray-900">
                     ${product.price_display || `PKR ${parseFloat(product.price).toFixed(0)}`}
                 </div>
-                ${product.price_display && product.price ? 
-                    `<div class="text-xs text-gray-500">Base: PKR ${parseFloat(product.price).toFixed(0)}</div>` : ''
-                }
+                ${product.price_display && product.price ?
+                `<div class="text-xs text-gray-500">Base: PKR ${parseFloat(product.price).toFixed(0)}</div>` : ''
+            }
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
                 <div class="text-sm text-gray-900">${product.samples ? product.samples.length : 0}</div>
                 <div class="text-xs text-gray-500">
-                    ${product.samples && product.samples.filter(s => s.is_active).length > 0 ? 
-                        `${product.samples.filter(s => s.is_active).length} active` : 
-                        'No samples'
-                    }
+                    ${product.samples && product.samples.filter(s => s.is_active).length > 0 ?
+                `${product.samples.filter(s => s.is_active).length} active` :
+                'No samples'
+            }
                 </div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
@@ -310,7 +323,7 @@ class DynamicCatalog {
                 </div>
             </td>
         `;
-        
+
         return row;
     }
 
@@ -320,21 +333,20 @@ class DynamicCatalog {
         existingNotifications.forEach(notification => notification.remove());
 
         const notification = document.createElement('div');
-        notification.className = `dynamic-notification fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm ${
-            type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' :
+        notification.className = `dynamic-notification fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm ${type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' :
             type === 'error' ? 'bg-red-100 text-red-800 border border-red-200' :
-            'bg-blue-100 text-blue-800 border border-blue-200'
-        }`;
-        
+                'bg-blue-100 text-blue-800 border border-blue-200'
+            }`;
+
         notification.innerHTML = `
             <div class="flex items-center">
                 <div class="flex-shrink-0">
-                    ${type === 'success' ? 
-                        '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>' :
-                        type === 'error' ?
-                        '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>' :
-                        '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>'
-                    }
+                    ${type === 'success' ?
+                '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>' :
+                type === 'error' ?
+                    '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>' :
+                    '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>'
+            }
                 </div>
                 <div class="ml-3">
                     <p class="text-sm font-medium">${message}</p>
@@ -346,9 +358,9 @@ class DynamicCatalog {
                 </div>
             </div>
         `;
-        
+
         document.body.appendChild(notification);
-        
+
         // Auto remove after 5 seconds
         setTimeout(() => {
             if (notification.parentElement) {

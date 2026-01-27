@@ -61,7 +61,11 @@ class ProductsManagementController extends Controller
     public function store(StoreServiceRequest $request)
     {
         $data = $request->validated();
-        $data['slug'] = Str::slug($data['slug'] ?: $data['title']);
+        if (!empty($data['slug'])) {
+            $data['slug'] = Str::slug($data['slug']);
+        } else {
+            $data['slug'] = null;
+        }
 
         // Convert meta_keywords string to array
         if (isset($data['meta_keywords']) && is_string($data['meta_keywords'])) {
@@ -96,7 +100,11 @@ class ProductsManagementController extends Controller
     public function update(UpdateServiceRequest $request, Service $product)
     {
         $data = $request->validated();
-        $data['slug'] = Str::slug($data['slug'] ?: $data['title']);
+        if (!empty($data['slug'])) {
+            $data['slug'] = Str::slug($data['slug']);
+        } else {
+            $data['slug'] = null;
+        }
 
         // Convert meta_keywords string to array
         if (isset($data['meta_keywords']) && is_string($data['meta_keywords'])) {
@@ -145,7 +153,11 @@ class ProductsManagementController extends Controller
     public function storeAjax(StoreServiceRequest $request)
     {
         $data = $request->validated();
-        $data['slug'] = Str::slug($data['slug'] ?: $data['title']);
+        if (!empty($data['slug'])) {
+            $data['slug'] = Str::slug($data['slug']);
+        } else {
+            $data['slug'] = null;
+        }
 
         // Convert meta_keywords string to array
         if (isset($data['meta_keywords']) && is_string($data['meta_keywords'])) {
@@ -178,7 +190,11 @@ class ProductsManagementController extends Controller
     public function updateAjax(UpdateServiceRequest $request, Service $product)
     {
         $data = $request->validated();
-        $data['slug'] = Str::slug($data['slug'] ?: $data['title']);
+        if (!empty($data['slug'])) {
+            $data['slug'] = Str::slug($data['slug']);
+        } else {
+            $data['slug'] = null;
+        }
 
         // Convert meta_keywords string to array
         if (isset($data['meta_keywords']) && is_string($data['meta_keywords'])) {
