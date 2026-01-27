@@ -279,13 +279,13 @@ document.addEventListener('alpine:init', () => {
 
                     if (supportUser) {
                         this.supportUserId = supportUser.id;
-                        this.findOrCreateChat();
                     }
                 }
             } catch (error) {
                 console.error('Error finding support user:', error);
-                // Graceful fallback - hide chat widget
-                this.isOpen = false;
+            } finally {
+                // Always try to init chat, even if no specific admin found
+                this.findOrCreateChat();
             }
         },
 
@@ -293,7 +293,13 @@ document.addEventListener('alpine:init', () => {
         async findOrCreateChat() {
             try {
                 // First, try to find existing active chat
-                const response = await fetch('{{ route("chat.index") }}');
+                // First, try to find existing active chat
+                const response = await fetch('{{ route("chat.index") }}', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
                 if (response.ok) {
                     const data = await response.json();
                     if (data.chats && data.chats.length > 0) {
@@ -301,13 +307,19 @@ document.addEventListener('alpine:init', () => {
                         this.loadMessages();
                         this.markAsRead();
                         return;
+                    } else {
+                        console.log('No existing chats found, creating new one...');
                     }
+                } else {
+                     console.error('Failed to fetch existing chats:', response.status);
+                     alert('DEBUG WARNING: Failed to fetch existing chats (Status: ' + response.status + '). Will try to create new one.');
                 }
 
                 // If no existing chat, create a new one
                 await this.createNewChat();
             } catch (error) {
                 console.error('Error finding or creating chat:', error);
+                alert('DEBUG ERROR: Exception in findOrCreateChat: ' + error.message);
             }
         },
 
@@ -318,6 +330,7 @@ document.addEventListener('alpine:init', () => {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
                     body: JSON.stringify({
@@ -330,9 +343,13 @@ document.addEventListener('alpine:init', () => {
                 if (data.success) {
                     this.currentChatId = data.chat_id;
                     this.loadMessages();
+                } else {
+                    console.error('Failed to create chat:', data);
+                    // alert('DEBUG ERROR: Server returned error: ' + JSON.stringify(data.errors || data.message || data));
                 }
             } catch (error) {
                 console.error('Error creating new chat:', error);
+                // alert('DEBUG ERROR: Failed to create new chat session. ' + error.message);
             }
         },
 
