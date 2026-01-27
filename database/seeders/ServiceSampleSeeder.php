@@ -199,42 +199,42 @@ class ServiceSampleSeeder extends Seeder
                 'base_unit_price' => 2999.00,
             ],
 
-            // Brochures (Multiple Images)
-            'Brochures' => [
+            // Mug Printing (renamed from Brochures)
+            'Mug Printing' => [
                 'sub_categories' => [
-                    'Bi-fold' => [
+                    'Standard' => [
                         'image' => 'images/brochures/bi-fold-brochure.jpg',
                         'price_modifier' => 0
                     ],
-                    'Tri-fold' => [
+                    'Magic' => [
                         'image' => 'images/brochures/tri-fold-brochure.jpg',
                         'price_modifier' => 200
                     ],
-                    'Z-fold' => [
+                    'Travel' => [
                         'image' => 'images/brochures/z-fold-brochure.jpg',
                         'price_modifier' => 400
                     ]
                 ],
-                'base_unit_price' => 2499.00,
+                'base_unit_price' => 499.00,
             ],
 
-            // Posters (Multiple Images) - ✅ Updated
-            'Posters' => [
+            // Bill book printing (renamed from Posters)
+            'Bill book printing' => [
                 'sub_categories' => [
-                    'A3' => [
+                    'A5' => [
                         'image' => 'images/posters/a3-poster.jpg', // Image 1
                         'price_modifier' => 0
                     ],
-                    'A2' => [
+                    'A4' => [
                         'image' => 'images/posters/a2-poster.jpg', // Image 2
                         'price_modifier' => 500
                     ],
-                    'A1' => [
+                    'Custom' => [
                         'image' => 'images/posters/a1-poster.jpeg', // Image 3
                         'price_modifier' => 1000
                     ]
                 ],
-                'base_unit_price' => 1999.00,
+                'base_unit_price' => 999.00,
             ],
         ];
 

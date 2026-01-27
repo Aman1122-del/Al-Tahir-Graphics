@@ -65,7 +65,7 @@
 
                 <div class="mx-auto max-w-6xl px-4">
 
-                    <div class="grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3">
+                    <div class="grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3">
                         @foreach ($services as $idx => $service)
                             <a href="{{ route('service.show', $service->slug) }}"
                                 class="group relative overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200/80 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:ring-blue-500/30 animate-scale-in product-card block"

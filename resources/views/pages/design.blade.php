@@ -335,7 +335,7 @@
             </aside>
 
             <!-- Center Canvas -->
-            <main class="flex-1 flex items-center justify-center p-4 lg:p-6 bg-white dark:bg-gray-900">
+            <main class="flex-1 flex  justify-center p-4 lg:p-6 bg-white dark:bg-gray-900">
                 <div class="relative max-w-4xl w-full">
                     <!-- Canvas Header -->
                     <div class="flex items-center justify-between mb-4">
@@ -361,6 +361,7 @@
                         <div class="relative bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-200 hover:shadow-xl hover:scale-[1.01]" style="aspect-ratio: 4/3;">
                             <canvas id="design-canvas" class="block w-full h-full transition-opacity duration-200"></canvas>
                             <canvas id="grid-canvas" class="absolute top-0 left-0 pointer-events-none hidden transition-opacity duration-200"></canvas>
+
                             
                             <!-- Canvas overlay for loading state -->
                             <div id="canvas-loading" class="hidden absolute inset-0 bg-white/80 dark:bg-gray-900/80 flex items-center justify-center">

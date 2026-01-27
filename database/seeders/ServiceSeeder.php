@@ -60,8 +60,8 @@ class ServiceSeeder extends Seeder
                 'sort_order' => 4,
             ],
             [
-                'title' => 'Brochures',
-                'description' => 'Professional brochures and catalogs with multiple folds and premium paper options.',
+                'title' => 'Mug Printing',
+                'description' => 'Customized mug printing for gifts, corporate branding, and promotional items.',
                 'price' => 2499.00,
                 'price_display' => 'From PKR 2,499',
                 'image_url' => 'random2.png',
@@ -71,8 +71,8 @@ class ServiceSeeder extends Seeder
                 'sort_order' => 5,
             ],
             [
-                'title' => 'Posters',
-                'description' => 'High-quality posters in various sizes with vibrant colors and crisp details.',
+                'title' => 'Bill book printing',
+                'description' => 'Professional bill books, invoices, and receipt books with custom branding and carbonless options.',
                 'price' => 1999.00,
                 'price_display' => 'From PKR 1,999',
                 'image_url' => 'Posters.jpg',
